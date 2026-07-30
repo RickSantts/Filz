@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO — filled dynamically by main.js from config.json -->
+  <title>FILZ — Básicos Premium</title>
+  <meta name="description" content="Básicos premium para quem valoriza qualidade, conforto e confiança.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#F5F3EF">
+  <link rel="canonical" href="https://filz.com.br">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="FILZ — Básicos Premium">
+  <meta property="og:description" content="Básicos premium para quem valoriza qualidade, conforto e confiança.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://filz.com.br">
+  <meta property="og:image" content="assets/images/hero_model.jpg">
+  <meta property="og:locale" content="pt_BR">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FILZ — Básicos Premium">
+  <meta name="twitter:description" content="Básicos premium para quem valoriza qualidade, conforto e confiança.">
+
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Critical inline CSS to avoid FOUC -->
+  <style>
+    body { opacity: 0; transition: opacity 0.3s ease; }
+    body.ready { opacity: 1; }
+  </style>
+</head>
+
+<body>
+  <!-- ============================================
+       SKIP LINK (Accessibility)
+       ============================================ -->
+  <a href="#produtos" class="sr-only" style="position:absolute;">Pular para o conteúdo</a>
+
+  <!-- ============================================
+       NAVBAR
+       ============================================ -->
+  <header id="nav" class="nav" role="banner"></header>
+
+  <main>
+    <!-- ============================================
+         HERO
+         ============================================ -->
+    <section id="hero" class="hero" aria-label="Apresentação da marca"></section>
+
+    <!-- ============================================
+         SOBRE
+         ============================================ -->
+    <section id="about" class="about section" aria-labelledby="about-title"></section>
+
+    <!-- ============================================
+         PRODUTOS
+         ============================================ -->
+    <section id="produtos" class="products" aria-labelledby="products-title"></section>
+
+    <!-- ============================================
+         GUIA DE MEDIDAS
+         ============================================ -->
+    <section id="medidas" class="sizing" aria-labelledby="sizing-title"></section>
+
+    <!-- ============================================
+         QUALIDADE / PILARES
+         ============================================ -->
+    <section id="pillars" class="pillars section" aria-labelledby="pillars-title"></section>
+
+    <!-- ============================================
+         MANIFESTO
+         ============================================ -->
+    <section id="manifesto" class="manifesto" aria-labelledby="manifesto-title"></section>
+
+    <!-- ============================================
+         LISTA DE ESPERA
+         ============================================ -->
+    <section id="waitlist" class="waitlist" aria-labelledby="waitlist-title"></section>
+  </main>
+
+  <!-- ============================================
+       RODAPÉ
+       ============================================ -->
+  <footer id="footer" class="footer" role="contentinfo"></footer>
+
+  <!-- ============================================
+       MAIN SCRIPT
+       ============================================ -->
+  <script src="js/main.js"></script>
+  <script>
+    // Show page after JS renders to avoid FOUC
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => document.body.classList.add('ready'), 80);
+    });
+  </script>
+</body>
+</html>

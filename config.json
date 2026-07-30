@@ -1,0 +1,201 @@
+{
+  "brand": {
+    "name": "FILZ",
+    "logoImage": "assets/images/Simbolo Filz.png",
+    "logoAlt": "FILZ — Marca de Básicos Premium",
+    "tagline": "Menos excesso. Mais presença.",
+    "whatsapp": "5511999999999",
+    "instagram": "https://instagram.com/usefilz",
+    "instagramHandle": "@usefilz",
+    "email": "contato@filz.com.br",
+    "domain": "filz.com.br"
+  },
+  "seo": {
+    "title": "FILZ — Básicos Premium",
+    "description": "Básicos premium para quem valoriza qualidade, conforto e confiança. Peças minimalistas, elegantes e duradouras.",
+    "ogImage": "assets/images/hero_model.jpg"
+  },
+  "hero": {
+    "headline": "Menos excesso.\nMais presença.",
+    "subheadline": "Básicos premium para quem valoriza qualidade, conforto e confiança.",
+    "ctaCollection": "Conhecer coleção",
+    "ctaInstagram": "Instagram",
+    "image": "assets/images/hero_model.jpg"
+  },
+  "about": {
+    "title": "Acreditamos que estilo não precisa de excessos.",
+    "text": "Criamos peças com foco em qualidade, conforto e caimento. Cada detalhe é pensado para entregar uma experiência simples, elegante e duradoura."
+  },
+  "products": [
+    {
+      "id": "essential-tee",
+      "name": "Essential Tee",
+      "price": "R$ 89,90",
+      "description": "100% algodão · 180g · Modelagem Casual",
+      "details": "Tecido suave ao toque, resistente à lavagem e com caimento perfeito para o dia a dia.",
+      "placeholder": true,
+      "colors": [
+        {
+          "name": "Branco",
+          "hex": "#F5F3EF",
+          "image": ""
+        },
+        {
+          "name": "Preto",
+          "hex": "#111111",
+          "image": ""
+        },
+        {
+          "name": "Areia",
+          "hex": "#C4A882",
+          "image": ""
+        }
+      ],
+      "sizes": [
+        "PP",
+        "P",
+        "M",
+        "G",
+        "GG"
+      ],
+      "whatsappMessage": "Olá! Gostaria de comprar a Essential Tee."
+    },
+    {
+      "id": "essential-tee-oversized",
+      "name": "Essential Tee Oversized",
+      "price": "R$ 99,90",
+      "description": "100% algodão · 200g · Modelagem Oversized",
+      "details": "Corte largo e relaxado para um look moderno e confortável.",
+      "placeholder": true,
+      "colors": [
+        {
+          "name": "Preto",
+          "hex": "#111111",
+          "image": ""
+        },
+        {
+          "name": "Areia",
+          "hex": "#C4A882",
+          "image": ""
+        }
+      ],
+      "sizes": [
+        "P",
+        "M",
+        "G",
+        "GG"
+      ],
+      "whatsappMessage": "Olá! Gostaria de comprar a Essential Tee Oversized."
+    },
+    {
+      "id": "essential-tee-pocket",
+      "name": "Essential Tee Pocket",
+      "price": "R$ 94,90",
+      "description": "100% algodão · 180g · Bolso funcional",
+      "details": "Detalhe de bolso no peito, elegante e funcional para o cotidiano.",
+      "placeholder": true,
+      "colors": [
+        {
+          "name": "Branco",
+          "hex": "#F5F3EF",
+          "image": ""
+        },
+        {
+          "name": "Preto",
+          "hex": "#111111",
+          "image": ""
+        }
+      ],
+      "sizes": [
+        "PP",
+        "P",
+        "M",
+        "G",
+        "GG"
+      ],
+      "whatsappMessage": "Olá! Gostaria de comprar a Essential Tee Pocket."
+    }
+  ],
+  "sizingGuide": {
+    "title": "Guia de Medidas",
+    "subtitle": "Medidas aproximadas em centímetros. Em caso de dúvida, entre em contato pelo WhatsApp.",
+    "columns": [
+      "Tamanho",
+      "Ombro",
+      "Tórax",
+      "Comprimento",
+      "Manga"
+    ],
+    "rows": [
+      [
+        "PP",
+        "40",
+        "88",
+        "66",
+        "19"
+      ],
+      [
+        "P",
+        "42",
+        "92",
+        "68",
+        "20"
+      ],
+      [
+        "M",
+        "44",
+        "96",
+        "70",
+        "21"
+      ],
+      [
+        "G",
+        "46",
+        "100",
+        "72",
+        "22"
+      ],
+      [
+        "GG",
+        "48",
+        "104",
+        "74",
+        "23"
+      ]
+    ],
+    "note": "⚠ Valores fictícios — substitua pelas medidas reais das suas peças antes de publicar."
+  },
+  "pillars": [
+    {
+      "icon": "leaf",
+      "title": "100% Algodão",
+      "text": "Matéria-prima selecionada para máximo conforto e durabilidade."
+    },
+    {
+      "icon": "feather",
+      "title": "Conforto",
+      "text": "Leveza e suavidade do primeiro ao último uso."
+    },
+    {
+      "icon": "shield",
+      "title": "Durabilidade",
+      "text": "Resistente às lavagens, sem perder forma ou caimento."
+    },
+    {
+      "icon": "maximize2",
+      "title": "Caimento",
+      "text": "Modelagem pensada para valorizar o corpo naturalmente."
+    }
+  ],
+  "manifesto": {
+    "title": "Mais presença.",
+    "text": "A FILZ nasceu da ideia de que qualidade e simplicidade caminham juntas. Criamos peças para quem prefere presença ao excesso."
+  },
+  "waitlist": {
+    "title": "Primeira coleção em desenvolvimento.",
+    "subtitle": "Seja o primeiro a saber quando estiver disponível.",
+    "placeholder": "Seu melhor e-mail",
+    "cta": "Receber novidades",
+    "apiUrl": ""
+  }
+}

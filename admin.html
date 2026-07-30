@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FILZ Admin — Painel de Edição</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0E0E0E;
+      color: #E8E4DE;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+    input, textarea, select { font-family: inherit; }
+
+    /* ── Variables ── */
+    :root {
+      --bronze: #B08D57;
+      --bronze-dim: rgba(176,141,87,0.15);
+      --bg: #0E0E0E;
+      --bg2: #161616;
+      --bg3: #1E1E1E;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text: #E8E4DE;
+      --text-dim: #7A756E;
+      --text-muted: #3D3A35;
+      --green: #5A9A6A;
+      --red: #9A5A5A;
+      --sidebar-w: 220px;
+      --topbar-h: 56px;
+      --radius: 6px;
+      --transition: 0.2s ease;
+    }
+
+    /* ── Layout ── */
+    .layout { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar__brand {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar__logo {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      color: var(--text);
+    }
+    .sidebar__sub {
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+      margin-top: 3px;
+    }
+
+    .sidebar__nav { padding: 12px 0; flex: 1; }
+    .sidebar__section-label {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 12px 20px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 20px;
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 400;
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: all var(--transition);
+      user-select: none;
+    }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+    .nav-item.active {
+      color: var(--text);
+      border-left-color: var(--bronze);
+      background: rgba(176,141,87,0.06);
+    }
+    .nav-item svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    .sidebar__footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 9px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-dim);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: all var(--transition);
+    }
+    .btn-preview:hover { border-color: var(--border-hover); color: var(--text); }
+
+    /* ── Main content ── */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ── Topbar ── */
+    .topbar {
+      height: var(--topbar-h);
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      flex-shrink: 0;
+      gap: 16px;
+    }
+    .topbar__title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .topbar__actions { display: flex; align-items: center; gap: 10px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 18px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      border: 1px solid transparent;
+      transition: all var(--transition);
+      cursor: pointer;
+    }
+    .btn svg { width: 13px; height: 13px; }
+    .btn-save {
+      background: var(--bronze);
+      color: #0E0E0E;
+      border-color: var(--bronze);
+    }
+    .btn-save:hover { background: #C9A468; }
+    .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-dim);
+      border-color: var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--border-hover); color: var(--text); }
+
+    /* ── Toast ── */
+    .toast-wrap {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 18px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.3s ease;
+      pointer-events: auto;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { border-color: rgba(90,154,106,0.4); }
+    .toast.error   { border-color: rgba(154,90,90,0.4); }
+    .toast__dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .toast.success .toast__dot { background: var(--green); }
+    .toast.error   .toast__dot { background: var(--red); }
+
+    /* ── Scrollable content area ── */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px;
+    }
+
+    /* ── Panels (sections) ── */
+    .panel { display: none; max-width: 760px; }
+    .panel.active { display: block; }
+
+    .panel__header { margin-bottom: 28px; }
+    .panel__title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .panel__desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-top: 4px;
+      line-height: 1.6;
+    }
+
+    /* ── Form elements ── */
+    .form-group { margin-bottom: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 7px;
+    }
+    label .hint {
+      font-size: 10px;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text-muted);
+      margin-left: 6px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 400;
+      padding: 10px 13px;
+      outline: none;
+      transition: border-color var(--transition);
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: rgba(176,141,87,0.5);
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-muted); }
+    textarea { resize: vertical; line-height: 1.6; min-height: 90px; }
+    select option { background: var(--bg3); }
+
+    .input-prefix {
+      display: flex;
+      align-items: center;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color var(--transition);
+    }
+    .input-prefix:focus-within { border-color: rgba(176,141,87,0.5); }
+    .input-prefix__label {
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+      user-select: none;
+    }
+    .input-prefix input {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      flex: 1;
+    }
+    .input-prefix input:focus { border: none; }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+    }
+
+    /* ── Image Upload ── */
+    .img-upload-area {
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .img-upload-area:hover { border-color: var(--bronze); background: var(--bronze-dim); }
+
+    .img-preview {
+      width: 72px;
+      height: 72px;
+      border-radius: 4px;
+      object-fit: cover;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      display: block;
+      flex-shrink: 0;
+    }
+    .img-preview-placeholder {
+      width: 72px;
+      height: 72px;
+      border-radius: 4px;
+      background: var(--bg3);
+      border: 1px dashed var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .img-upload-info { flex: 1; }
+    .img-upload-path {
+      font-size: 12px;
+      color: var(--text-dim);
+      word-break: break-all;
+      margin-bottom: 6px;
+    }
+    .img-upload-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .img-upload-btn {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bronze);
+      background: transparent;
+      border: 1px solid rgba(176,141,87,0.3);
+      border-radius: 4px;
+      padding: 6px 14px;
+      transition: all var(--transition);
+      margin-top: 8px;
+      display: inline-block;
+    }
+    .img-upload-btn:hover { background: var(--bronze-dim); border-color: var(--bronze); }
+    input[type="file"] { display: none; }
+
+    /* ── Product cards in admin ── */
+    .product-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .product-item {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .product-item__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      cursor: pointer;
+      user-select: none;
+      transition: background var(--transition);
+    }
+    .product-item__header:hover { background: rgba(255,255,255,0.02); }
+    .product-item__name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .product-item__price {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+    .product-item__actions { display: flex; align-items: center; gap: 8px; }
+
+    .product-item__body { display: none; padding: 0 18px 18px; }
+    .product-item__body.open { display: block; }
+
+    .btn-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      transition: all var(--transition);
+    }
+    .btn-icon:hover { border-color: var(--border-hover); color: var(--text); }
+    .btn-icon.danger:hover { border-color: rgba(154,90,90,0.5); color: var(--red); }
+    .btn-icon svg { width: 13px; height: 13px; }
+
+    .chevron { transition: transform var(--transition); }
+    .chevron.open { transform: rotate(180deg); }
+
+    /* ── Color list ── */
+    .color-list { display: flex; flex-direction: column; gap: 8px; }
+    .color-item {
+      display: grid;
+      grid-template-columns: 40px 1fr 130px auto;
+      gap: 8px;
+      align-items: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px;
+    }
+    .color-swatch-edit {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+    .color-item input { padding: 7px 10px; font-size: 12px; }
+    .btn-add-color {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: transparent;
+      border: 1px dashed var(--border);
+      border-radius: 4px;
+      color: var(--text-dim);
+      font-size: 12px;
+      font-weight: 500;
+      transition: all var(--transition);
+      width: 100%;
+      justify-content: center;
+    }
+    .btn-add-color:hover { border-color: var(--bronze); color: var(--bronze); }
+
+    /* ── Size tags ── */
+    .sizes-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .size-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .size-tag button {
+      display: flex;
+      align-items: center;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 0;
+      transition: color var(--transition);
+    }
+    .size-tag button:hover { color: var(--red); }
+    .size-tag button svg { width: 10px; height: 10px; }
+    .size-input-row { display: flex; gap: 8px; margin-top: 8px; }
+    .size-input-row input { width: 100px; }
+    .size-input-row button {
+      padding: 8px 14px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-dim);
+      font-size: 12px;
+      transition: all var(--transition);
+    }
+    .size-input-row button:hover { border-color: var(--bronze); color: var(--bronze); }
+
+    /* ── Table editor ── */
+    .table-editor { overflow-x: auto; }
+    .table-edit {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 400px;
+    }
+    .table-edit th, .table-edit td {
+      text-align: left;
+      padding: 4px 4px;
+    }
+    .table-edit th {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding-bottom: 8px;
+    }
+    .table-edit input {
+      padding: 8px;
+      font-size: 13px;
+      border-radius: 4px;
+      width: 100%;
+    }
+
+    /* ── Toggle switch ── */
+    .toggle-wrap { display: flex; align-items: center; gap: 12px; }
+    .toggle {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      transition: all var(--transition);
+      cursor: pointer;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      left: 3px; top: 3px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      transition: all var(--transition);
+    }
+    .toggle input:checked + .toggle-slider { background: var(--bronze-dim); border-color: var(--bronze); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(18px); background: var(--bronze); }
+    .toggle-label { font-size: 13px; color: var(--text-dim); }
+
+    /* ── Add product button ── */
+    .btn-add-product {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 500;
+      transition: all var(--transition);
+      margin-top: 8px;
+    }
+    .btn-add-product:hover { border-color: var(--bronze); color: var(--bronze); }
+
+    /* ── Pillar cards ── */
+    .pillar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .pillar-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .pillar-card label { margin-bottom: 6px; }
+  </style>
+</head>
+
+<body>
+<div class="layout">
+
+  <!-- ══════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <div class="sidebar__logo">FILZ</div>
+      <div class="sidebar__sub">Painel de Edição</div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="sidebar__section-label">Geral</div>
+      <div class="nav-item active" data-panel="marca">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Marca
+      </div>
+      <div class="nav-item" data-panel="hero">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        Hero
+      </div>
+      <div class="nav-item" data-panel="sobre">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Sobre
+      </div>
+
+      <div class="sidebar__section-label">Coleção</div>
+      <div class="nav-item" data-panel="produtos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Produtos
+      </div>
+      <div class="nav-item" data-panel="medidas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        Medidas
+      </div>
+
+      <div class="sidebar__section-label">Conteúdo</div>
+      <div class="nav-item" data-panel="pilares">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Qualidade
+      </div>
+      <div class="nav-item" data-panel="manifesto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Manifesto
+      </div>
+      <div class="nav-item" data-panel="espera">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Lista de Espera
+      </div>
+    </nav>
+
+    <div class="sidebar__footer">
+      <a href="/" target="_blank" class="btn-preview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Ver Site
+      </a>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════
+       MAIN
+  ══════════════════════════════════ -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <span class="topbar__title" id="topbar-title">Marca</span>
+      <div class="topbar__actions">
+        <button class="btn btn-ghost" onclick="discardChanges()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+          Descartar
+        </button>
+        <button class="btn btn-save" id="btn-save" onclick="saveConfig()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+          Salvar
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content" id="content">
+
+      <!-- ── MARCA ─────────────────────────────────── -->
+      <div class="panel active" id="panel-marca">
+        <div class="panel__header">
+          <h1 class="panel__title">Informações da Marca</h1>
+          <p class="panel__desc">Dados gerais da FILZ exibidos no site e nas redes sociais.</p>
+        </div>
+
+        <div class="section-title">Logo</div>
+        <div class="form-group">
+          <label>Logo da marca <span class="hint">PNG, JPG ou SVG — fundo transparente recomendado</span></label>
+          <div class="img-upload-area" onclick="document.getElementById('logo-file').click()">
+            <div id="logo-preview-wrap">
+              <div class="img-preview-placeholder" id="logo-placeholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </div>
+              <img class="img-preview" id="logo-preview-img" style="display:none;">
+            </div>
+            <div class="img-upload-info">
+              <p class="img-upload-path" id="logo-path-label">Nenhuma logo selecionada</p>
+              <p class="img-upload-hint">Arraste ou clique para selecionar o arquivo da sua logo</p>
+              <span class="img-upload-btn">Selecionar arquivo</span>
+            </div>
+            <input type="file" id="logo-file" accept="image/*" onchange="uploadImage(this,'brand.logoImage','logo-preview-img','logo-placeholder','logo-path-label')">
+          </div>
+        </div>
+
+        <hr class="divider">
+        <div class="section-title">Dados de Contato</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nome da marca</label>
+            <input type="text" data-field="brand.name" placeholder="FILZ">
+          </div>
+          <div class="form-group">
+            <label>Tagline</label>
+            <input type="text" data-field="brand.tagline" placeholder="Menos excesso. Mais presença.">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>WhatsApp <span class="hint">somente números com DDI+DDD</span></label>
+          <div class="input-prefix">
+            <span class="input-prefix__label">+</span>
+            <input type="tel" data-field="brand.whatsapp" placeholder="5511999999999">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Instagram (URL completa)</label>
+            <div class="input-prefix">
+              <span class="input-prefix__label">instagram.com/</span>
+              <input type="text" data-field="brand.instagramHandle" placeholder="usefilz" oninput="syncInstagram(this)">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" data-field="brand.email" placeholder="contato@filz.com.br">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Domínio</label>
+            <input type="text" data-field="brand.domain" placeholder="filz.com.br">
+          </div>
+        </div>
+
+        <hr class="divider">
+        <div class="section-title">SEO</div>
+        <div class="form-group">
+          <label>Título da página (aba do navegador)</label>
+          <input type="text" data-field="seo.title" placeholder="FILZ — Básicos Premium">
+        </div>
+        <div class="form-group">
+          <label>Descrição (meta description)</label>
+          <textarea data-field="seo.description" rows="2" placeholder="Básicos premium para quem valoriza qualidade..."></textarea>
+        </div>
+      </div>
+
+      <!-- ── HERO ──────────────────────────────────── -->
+      <div class="panel" id="panel-hero">
+        <div class="panel__header">
+          <h1 class="panel__title">Hero — Seção Principal</h1>
+          <p class="panel__desc">A primeira coisa que os visitantes veem ao entrar no site.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Headline <span class="hint">use \n para quebra de linha</span></label>
+          <textarea data-field="hero.headline" rows="3" placeholder="Menos excesso.&#10;Mais presença."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Subheadline</label>
+          <textarea data-field="hero.subheadline" rows="2" placeholder="Básicos premium para quem valoriza..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Texto botão coleção</label>
+            <input type="text" data-field="hero.ctaCollection" placeholder="Conhecer coleção">
+          </div>
+          <div class="form-group">
+            <label>Texto botão Instagram</label>
+            <input type="text" data-field="hero.ctaInstagram" placeholder="Instagram">
+          </div>
+        </div>
+
+        <hr class="divider">
+        <div class="section-title">Imagem do Hero</div>
+        <div class="form-group">
+          <label>Foto de fundo do hero</label>
+          <div class="img-upload-area" onclick="document.getElementById('hero-file').click()">
+            <div id="hero-preview-wrap">
+              <div class="img-preview-placeholder" id="hero-placeholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </div>
+              <img class="img-preview" id="hero-preview-img" style="display:none;">
+            </div>
+            <div class="img-upload-info">
+              <p class="img-upload-path" id="hero-path-label">Nenhuma imagem selecionada</p>
+              <p class="img-upload-hint">Recomendado: vertical, alta resolução, foco no produto</p>
+              <span class="img-upload-btn">Selecionar arquivo</span>
+            </div>
+            <input type="file" id="hero-file" accept="image/*" onchange="uploadImage(this,'hero.image','hero-preview-img','hero-placeholder','hero-path-label')">
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SOBRE ──────────────────────────────────── -->
+      <div class="panel" id="panel-sobre">
+        <div class="panel__header">
+          <h1 class="panel__title">Sobre a Marca</h1>
+          <p class="panel__desc">Texto apresentado logo abaixo do hero.</p>
+        </div>
+        <div class="form-group">
+          <label>Título</label>
+          <input type="text" data-field="about.title" placeholder="Acreditamos que estilo não precisa de excessos.">
+        </div>
+        <div class="form-group">
+          <label>Texto</label>
+          <textarea data-field="about.text" rows="4"></textarea>
+        </div>
+      </div>
+
+      <!-- ── PRODUTOS ───────────────────────────────── -->
+      <div class="panel" id="panel-produtos">
+        <div class="panel__header">
+          <h1 class="panel__title">Produtos</h1>
+          <p class="panel__desc">Adicione, edite ou remova produtos da coleção.</p>
+        </div>
+        <div class="product-list" id="product-list"></div>
+        <button class="btn-add-product" onclick="addProduct()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Adicionar produto
+        </button>
+      </div>
+
+      <!-- ── MEDIDAS ─────────────────────────────────── -->
+      <div class="panel" id="panel-medidas">
+        <div class="panel__header">
+          <h1 class="panel__title">Guia de Medidas</h1>
+          <p class="panel__desc">Tabela de medidas exibida no site. Preencha com valores reais antes de publicar.</p>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Título</label>
+            <input type="text" data-field="sizingGuide.title" placeholder="Guia de Medidas">
+          </div>
+          <div class="form-group">
+            <label>Subtítulo</label>
+            <input type="text" data-field="sizingGuide.subtitle">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Aviso <span class="hint">exibido em bronze — deixe vazio para ocultar</span></label>
+          <input type="text" data-field="sizingGuide.note">
+        </div>
+        <hr class="divider">
+        <div class="section-title">Tabela de Tamanhos <span style="font-weight:300;text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:11px;">(em cm)</span></div>
+        <div class="table-editor" id="sizing-table-editor"></div>
+      </div>
+
+      <!-- ── PILARES ─────────────────────────────────── -->
+      <div class="panel" id="panel-pilares">
+        <div class="panel__header">
+          <h1 class="panel__title">Pilares de Qualidade</h1>
+          <p class="panel__desc">Os 4 diferenciais da marca exibidos em grid.</p>
+        </div>
+        <div class="pillar-grid" id="pillar-grid"></div>
+      </div>
+
+      <!-- ── MANIFESTO ───────────────────────────────── -->
+      <div class="panel" id="panel-manifesto">
+        <div class="panel__header">
+          <h1 class="panel__title">Manifesto</h1>
+          <p class="panel__desc">Seção de impacto tipográfico — frase e texto de identidade da marca.</p>
+        </div>
+        <div class="form-group">
+          <label>Título (destaque grande)</label>
+          <input type="text" data-field="manifesto.title" placeholder="Mais presença.">
+        </div>
+        <div class="form-group">
+          <label>Texto</label>
+          <textarea data-field="manifesto.text" rows="4"></textarea>
+        </div>
+      </div>
+
+      <!-- ── LISTA DE ESPERA ─────────────────────────── -->
+      <div class="panel" id="panel-espera">
+        <div class="panel__header">
+          <h1 class="panel__title">Lista de Espera</h1>
+          <p class="panel__desc">Formulário de captura de e-mails.</p>
+        </div>
+        <div class="form-group">
+          <label>Título</label>
+          <input type="text" data-field="waitlist.title" placeholder="Primeira coleção em desenvolvimento.">
+        </div>
+        <div class="form-group">
+          <label>Subtítulo</label>
+          <input type="text" data-field="waitlist.subtitle">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Placeholder do campo</label>
+            <input type="text" data-field="waitlist.placeholder" placeholder="Seu melhor e-mail">
+          </div>
+          <div class="form-group">
+            <label>Texto do botão</label>
+            <input type="text" data-field="waitlist.cta" placeholder="Receber novidades">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>URL da API do Worker (Cloudflare) <span class="hint">Adicione o link do Worker gerado na Cloudflare aqui</span></label>
+          <input type="url" data-field="waitlist.apiUrl" placeholder="https://filz-waitlist.ricardo.workers.dev">
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toasts"></div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ADMIN JAVASCRIPT
+══════════════════════════════════════════════════════════ -->
+<script>
+/* ── State ── */
+let config = null;
+let originalConfig = null;
+
+/* ── Boot ── */
+async function boot() {
+  try {
+    const res = await fetch('/config.json?t=' + Date.now());
+    config = await res.json();
+    originalConfig = deepClone(config);
+    populateAll();
+    initSidebar();
+  } catch(e) {
+    showToast('Erro ao carregar config.json: ' + e.message, 'error');
+  }
+}
+
+/* ── Deep clone helper ── */
+function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
+
+/* ── Get nested value ── */
+function getNestedVal(obj, path) {
+  return path.split('.').reduce((o, k) => o?.[k], obj);
+}
+
+/* ── Set nested value ── */
+function setNestedVal(obj, path, val) {
+  const keys = path.split('.');
+  let cur = obj;
+  for (let i = 0; i < keys.length - 1; i++) {
+    if (cur[keys[i]] === undefined) cur[keys[i]] = {};
+    cur = cur[keys[i]];
+  }
+  cur[keys[keys.length - 1]] = val;
+}
+
+/* ── Populate all data-field inputs ── */
+function populateAll() {
+  document.querySelectorAll('[data-field]').forEach(el => {
+    const val = getNestedVal(config, el.dataset.field);
+    if (val !== undefined) {
+      el.value = val;
+    }
+    el.addEventListener('input', () => {
+      setNestedVal(config, el.dataset.field, el.value);
+    });
+  });
+
+  renderProducts();
+  renderSizingTable();
+  renderPillars();
+  populateLogoPreview();
+  populateHeroPreview();
+}
+
+/* ── Logo preview ── */
+function populateLogoPreview() {
+  if (config.brand.logoImage) {
+    showImgPreview(config.brand.logoImage, 'logo-preview-img', 'logo-placeholder', 'logo-path-label');
+  }
+}
+function populateHeroPreview() {
+  if (config.hero.image) {
+    showImgPreview(config.hero.image, 'hero-preview-img', 'hero-placeholder', 'hero-path-label');
+  }
+}
+
+function showImgPreview(src, imgId, placeholderId, labelId) {
+  const img = document.getElementById(imgId);
+  const ph  = document.getElementById(placeholderId);
+  const lbl = document.getElementById(labelId);
+  if (img && ph && lbl) {
+    img.src = src;
+    img.style.display = 'block';
+    ph.style.display  = 'none';
+    lbl.textContent   = src;
+  }
+}
+
+/* ── Instagram sync ── */
+function syncInstagram(el) {
+  const handle = el.value.replace('@','').trim();
+  setNestedVal(config, 'brand.instagramHandle', '@' + handle);
+  setNestedVal(config, 'brand.instagram', 'https://instagram.com/' + handle);
+}
+
+/* ── Image Upload ── */
+async function uploadImage(fileInput, configField, imgId, placeholderId, labelId) {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('file', file, file.name);
+
+  try {
+    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.ok) {
+      setNestedVal(config, configField, data.path);
+      showImgPreview(data.path, imgId, placeholderId, labelId);
+      showToast('Imagem enviada: ' + file.name, 'success');
+    } else {
+      showToast('Erro: ' + data.message, 'error');
+    }
+  } catch(e) {
+    // Fallback: use object URL for preview, keep local path concept
+    const url = URL.createObjectURL(file);
+    showImgPreview(url, imgId, placeholderId, labelId);
+    showToast('Servidor sem suporte a upload. Copie o arquivo manualmente para assets/images/', 'error');
+  }
+}
+
+/* ── Products ── */
+function renderProducts() {
+  const container = document.getElementById('product-list');
+  container.innerHTML = '';
+  config.products.forEach((p, idx) => {
+    container.appendChild(buildProductCard(p, idx));
+  });
+}
+
+function buildProductCard(p, idx) {
+  const div = document.createElement('div');
+  div.className = 'product-item';
+  div.id = `pcard-${idx}`;
+
+  const isOpen = idx === 0;
+
+  div.innerHTML = `
+    <div class="product-item__header" onclick="toggleProduct(${idx})">
+      <div>
+        <div class="product-item__name">${escH(p.name || 'Novo produto')}</div>
+        <div class="product-item__price">${escH(p.price || '')}</div>
+      </div>
+      <div class="product-item__actions">
+        <button class="btn-icon danger" title="Remover produto" onclick="event.stopPropagation(); removeProduct(${idx})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+        </button>
+        <div class="btn-icon">
+          <svg class="chevron ${isOpen ? 'open' : ''}" id="chev-${idx}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="product-item__body ${isOpen ? 'open' : ''}" id="pbody-${idx}">
+      <div class="form-row" style="margin-top:4px;">
+        <div class="form-group">
+          <label>Nome do produto</label>
+          <input type="text" value="${escH(p.name)}" oninput="updateProduct(${idx},'name',this.value)">
+        </div>
+        <div class="form-group">
+          <label>Preço</label>
+          <input type="text" value="${escH(p.price)}" placeholder="R$ 89,90" oninput="updateProduct(${idx},'price',this.value)">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Descrição curta <span class="hint">exibida abaixo do nome</span></label>
+        <input type="text" value="${escH(p.description)}" oninput="updateProduct(${idx},'description',this.value)">
+      </div>
+      <div class="form-group">
+        <label>Detalhes</label>
+        <textarea rows="2" oninput="updateProduct(${idx},'details',this.value)">${escH(p.details)}</textarea>
+      </div>
+      <div class="form-group">
+        <label>Mensagem WhatsApp <span class="hint">texto pré-preenchido ao clicar em comprar</span></label>
+        <input type="text" value="${escH(p.whatsappMessage)}" oninput="updateProduct(${idx},'whatsappMessage',this.value)">
+      </div>
+
+      <div class="toggle-wrap form-group">
+        <label class="toggle">
+          <input type="checkbox" ${p.placeholder ? 'checked' : ''} onchange="updateProduct(${idx},'placeholder',this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label">Mostrar placeholder "Foto em breve" (ative quando não tiver foto ainda)</span>
+      </div>
+
+      <hr class="divider" style="margin:16px 0;">
+      <div class="section-title" style="margin-bottom:10px;">Cores</div>
+      <div class="color-list" id="colors-${idx}">
+        ${(p.colors || []).map((c, ci) => colorRow(idx, ci, c)).join('')}
+      </div>
+      <button class="btn-add-color" style="margin-top:8px;" onclick="addColor(${idx})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Adicionar cor
+      </button>
+
+      <hr class="divider" style="margin:16px 0;">
+      <div class="section-title" style="margin-bottom:10px;">Tamanhos</div>
+      <div class="sizes-wrap" id="sizes-${idx}">
+        ${(p.sizes || []).map((s, si) => `
+          <div class="size-tag" id="stag-${idx}-${si}">
+            ${escH(s)}
+            <button onclick="removeSize(${idx},${si})" title="Remover">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        `).join('')}
+      </div>
+      <div class="size-input-row">
+        <input type="text" id="size-input-${idx}" placeholder="PP, P, M, G..." maxlength="5" onkeydown="if(event.key==='Enter') addSize(${idx})">
+        <button onclick="addSize(${idx})">+ Adicionar</button>
+      </div>
+    </div>
+  `;
+  return div;
+}
+
+function colorRow(pi, ci, c) {
+  return `
+    <div class="color-item" id="crow-${pi}-${ci}">
+      <input type="color" class="color-swatch-edit" value="${colorToHex(c.hex)}"
+        oninput="updateColor(${pi},${ci},'hex',this.value)">
+      <input type="text" value="${escH(c.name)}" placeholder="Nome da cor"
+        oninput="updateColor(${pi},${ci},'name',this.value)">
+      <input type="text" value="${escH(c.image)}" placeholder="assets/images/..."
+        oninput="updateColor(${pi},${ci},'image',this.value)">
+      <button class="btn-icon danger" onclick="removeColor(${pi},${ci})" title="Remover cor">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  `;
+}
+
+function colorToHex(hex) {
+  if (!hex || !hex.startsWith('#')) return '#888888';
+  if (hex.length === 4) {
+    return '#' + hex[1]+hex[1]+hex[2]+hex[2]+hex[3]+hex[3];
+  }
+  return hex;
+}
+
+function toggleProduct(idx) {
+  const body = document.getElementById(`pbody-${idx}`);
+  const chev = document.getElementById(`chev-${idx}`);
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+function updateProduct(idx, field, val) {
+  config.products[idx][field] = val;
+  // Update header display
+  const card = document.getElementById(`pcard-${idx}`);
+  if (card) {
+    const nameEl  = card.querySelector('.product-item__name');
+    const priceEl = card.querySelector('.product-item__price');
+    if (nameEl  && field === 'name')  nameEl.textContent  = val;
+    if (priceEl && field === 'price') priceEl.textContent = val;
+  }
+}
+
+function removeProduct(idx) {
+  if (!confirm(`Remover "${config.products[idx].name}"?`)) return;
+  config.products.splice(idx, 1);
+  renderProducts();
+}
+
+function addProduct() {
+  const newId = 'produto-' + Date.now();
+  config.products.push({
+    id: newId, name: 'Novo Produto', price: 'R$ 00,00',
+    description: '', details: '', placeholder: true,
+    colors: [{ name: 'Branco', hex: '#F5F3EF', image: '' }],
+    sizes: ['P', 'M', 'G'],
+    whatsappMessage: 'Olá! Gostaria de comprar o Novo Produto.'
+  });
+  renderProducts();
+  // Open last
+  const lastIdx = config.products.length - 1;
+  setTimeout(() => toggleProduct(lastIdx), 50);
+}
+
+function updateColor(pi, ci, field, val) {
+  config.products[pi].colors[ci][field] = val;
+}
+function removeColor(pi, ci) {
+  config.products[pi].colors.splice(ci, 1);
+  const container = document.getElementById(`colors-${pi}`);
+  if (container) container.innerHTML = config.products[pi].colors.map((c, i) => colorRow(pi, i, c)).join('');
+}
+function addColor(pi) {
+  config.products[pi].colors.push({ name: '', hex: '#888888', image: '' });
+  const container = document.getElementById(`colors-${pi}`);
+  if (container) container.innerHTML = config.products[pi].colors.map((c, i) => colorRow(pi, i, c)).join('');
+}
+function addSize(pi) {
+  const input = document.getElementById(`size-input-${pi}`);
+  const val = input.value.trim().toUpperCase();
+  if (!val) return;
+  config.products[pi].sizes.push(val);
+  input.value = '';
+  const container = document.getElementById(`sizes-${pi}`);
+  const si = config.products[pi].sizes.length - 1;
+  const tag = document.createElement('div');
+  tag.className = 'size-tag';
+  tag.id = `stag-${pi}-${si}`;
+  tag.innerHTML = `${escH(val)} <button onclick="removeSize(${pi},${si})" title="Remover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+  container.appendChild(tag);
+}
+function removeSize(pi, si) {
+  config.products[pi].sizes.splice(si, 1);
+  const container = document.getElementById(`sizes-${pi}`);
+  if (container) {
+    container.innerHTML = config.products[pi].sizes.map((s, i) => `
+      <div class="size-tag" id="stag-${pi}-${i}">
+        ${escH(s)}
+        <button onclick="removeSize(${pi},${i})" title="Remover">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    `).join('');
+  }
+}
+
+/* ── Sizing table editor ── */
+function renderSizingTable() {
+  const g = config.sizingGuide;
+  const container = document.getElementById('sizing-table-editor');
+  let html = `<table class="table-edit"><thead><tr>`;
+  g.columns.forEach(col => html += `<th>${escH(col)}</th>`);
+  html += `<th style="width:40px;"></th></tr></thead><tbody>`;
+
+  g.rows.forEach((row, ri) => {
+    html += `<tr id="srow-${ri}">`;
+    row.forEach((cell, ci) => {
+      html += `<td><input type="text" value="${escH(cell)}" oninput="updateSizingCell(${ri},${ci},this.value)"></td>`;
+    });
+    html += `<td><button class="btn-icon danger" onclick="removeSizingRow(${ri})" title="Remover linha" style="margin-top:2px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button></td></tr>`;
+  });
+  html += `</tbody></table>`;
+  html += `<button class="btn-add-color" style="margin-top:10px;" onclick="addSizingRow()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Adicionar linha
+  </button>`;
+  container.innerHTML = html;
+}
+function updateSizingCell(ri, ci, val) { config.sizingGuide.rows[ri][ci] = val; }
+function removeSizingRow(ri) {
+  config.sizingGuide.rows.splice(ri, 1);
+  renderSizingTable();
+}
+function addSizingRow() {
+  const cols = config.sizingGuide.columns.length;
+  config.sizingGuide.rows.push(Array(cols).fill(''));
+  renderSizingTable();
+}
+
+/* ── Pillars ── */
+function renderPillars() {
+  const container = document.getElementById('pillar-grid');
+  container.innerHTML = config.pillars.map((p, idx) => `
+    <div class="pillar-card">
+      <div class="form-group">
+        <label>Título do pilar ${idx+1}</label>
+        <input type="text" value="${escH(p.title)}" oninput="updatePillar(${idx},'title',this.value)">
+      </div>
+      <div class="form-group">
+        <label>Descrição</label>
+        <textarea rows="2" oninput="updatePillar(${idx},'text',this.value)">${escH(p.text)}</textarea>
+      </div>
+    </div>
+  `).join('');
+}
+function updatePillar(idx, field, val) { config.pillars[idx][field] = val; }
+
+/* ── Sidebar nav ── */
+function initSidebar() {
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const panel = item.dataset.panel;
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      item.classList.add('active');
+      document.getElementById('panel-' + panel)?.classList.add('active');
+      const titles = {
+        marca:'Marca', hero:'Hero', sobre:'Sobre', produtos:'Produtos',
+        medidas:'Medidas', pilares:'Qualidade', manifesto:'Manifesto', espera:'Lista de Espera'
+      };
+      document.getElementById('topbar-title').textContent = titles[panel] || panel;
+    });
+  });
+}
+
+/* ── Save ── */
+async function saveConfig() {
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  try {
+    // Clean up _instrucoes key before save
+    const toSave = deepClone(config);
+    delete toSave._instrucoes;
+
+    const res = await fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(toSave, null, 2)
+    });
+    const data = await res.json();
+    if (data.ok) {
+      originalConfig = deepClone(config);
+      showToast('Alterações salvas com sucesso!', 'success');
+    } else {
+      showToast('Erro ao salvar: ' + data.message, 'error');
+    }
+  } catch(e) {
+    showToast('Erro de conexão. O servidor está rodando?', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg> Salvar`;
+  }
+}
+
+/* ── Discard ── */
+function discardChanges() {
+  if (!confirm('Descartar todas as alterações não salvas?')) return;
+  config = deepClone(originalConfig);
+  populateAll();
+  showToast('Alterações descartadas.', 'success');
+}
+
+/* ── Toast ── */
+function showToast(msg, type = 'success') {
+  const wrap = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<div class="toast__dot"></div>${escH(msg)}`;
+  wrap.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  setTimeout(() => {
+    t.classList.remove('show');
+    setTimeout(() => t.remove(), 400);
+  }, 3500);
+}
+
+/* ── Util ── */
+function escH(str = '') {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Start ── */
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>
