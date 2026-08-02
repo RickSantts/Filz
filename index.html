@@ -5,26 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- SEO — filled dynamically by main.js from config.json -->
-  <title>FILZ — Básicos Premium</title>
-  <meta name="description" content="Básicos premium para quem valoriza qualidade, conforto e confiança.">
+  <title>FILZ — Camisetas Básicas Premium em Algodão | Básicos de Qualidade</title>
+  <meta name="description" content="Camisetas básicas premium em algodão de alta qualidade, com caimento impecável e durabilidade. Básicos essenciais, elegantes e confortáveis — FILZ.">
   <meta name="robots" content="index, follow">
+  <meta name="author" content="FILZ">
   <meta name="theme-color" content="#F5F3EF">
   <link rel="icon" type="image/png" href="assets/images/Simbolo-Filz.png">
   <link rel="apple-touch-icon" href="assets/images/Simbolo-Filz.png">
   <link rel="canonical" href="https://filz.com.br">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="FILZ — Básicos Premium">
-  <meta property="og:description" content="Básicos premium para quem valoriza qualidade, conforto e confiança.">
+  <meta property="og:site_name" content="FILZ">
+  <meta property="og:title" content="FILZ — Camisetas Básicas Premium em Algodão">
+  <meta property="og:description" content="Básicos premium em algodão de alta qualidade, com caimento impecável e durabilidade.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://filz.com.br">
-  <meta property="og:image" content="assets/images/hero_model.jpg">
+  <meta property="og:image" content="https://filz.com.br/assets/images/og-cover.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="FILZ — Básicos Premium em Algodão">
   <meta property="og:locale" content="pt_BR">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="FILZ — Básicos Premium">
-  <meta name="twitter:description" content="Básicos premium para quem valoriza qualidade, conforto e confiança.">
+  <meta name="twitter:title" content="FILZ — Camisetas Básicas Premium em Algodão">
+  <meta name="twitter:description" content="Básicos premium em algodão de alta qualidade, com caimento impecável e durabilidade.">
+  <meta name="twitter:image" content="https://filz.com.br/assets/images/og-cover.jpg">
+  <meta name="twitter:image:alt" content="FILZ — Básicos Premium em Algodão">
+
+  <!-- Preload do hero (LCP) -->
+  <link rel="preload" as="image" href="assets/images/hero_model.jpg" fetchpriority="high">
 
   <!-- Preconnect to Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,6 +48,34 @@
     body { opacity: 0; transition: opacity 0.3s ease; }
     body.ready { opacity: 1; }
   </style>
+
+  <!-- Dados estruturados: marca e site -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://filz.com.br/#org",
+        "name": "FILZ",
+        "url": "https://filz.com.br",
+        "logo": "https://filz.com.br/assets/images/Simbolo-Filz.png",
+        "description": "Marca de camisetas básicas premium em algodão de alta qualidade.",
+        "sameAs": [
+          "https://instagram.com/usefilz"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://filz.com.br/#site",
+        "url": "https://filz.com.br",
+        "name": "FILZ",
+        "inLanguage": "pt-BR",
+        "publisher": { "@id": "https://filz.com.br/#org" }
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body>
@@ -103,5 +141,14 @@
       setTimeout(() => document.body.classList.add('ready'), 80);
     });
   </script>
+  <noscript>
+    <div style="max-width:760px;margin:0 auto;padding:40px 20px;font-family:sans-serif;line-height:1.6;">
+      <h1>FILZ — Camisetas Básicas Premium</h1>
+      <p>Camisetas básicas premium em algodão de alta qualidade, com caimento impecável e durabilidade. Básicos essenciais, elegantes e confortáveis.</p>
+      <p>Ative o JavaScript para ver a coleção completa, o guia de medidas e fazer o cadastro na lista de espera.</p>
+      <h2>Contato</h2>
+      <p>WhatsApp: +55 38 9 9195-2212 · E-mail: contato@filz.com.br · Instagram: @usefilz</p>
+    </div>
+  </noscript>
 </body>
 </html>

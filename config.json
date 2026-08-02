@@ -11,9 +11,9 @@
     "domain": "filz.com.br"
   },
   "seo": {
-    "title": "FILZ — Básicos Premium",
-    "description": "Básicos premium para quem valoriza qualidade, conforto e confiança. Peças minimalistas, elegantes e duradouras.",
-    "ogImage": "assets/images/hero_model.jpg"
+    "title": "FILZ — Camisetas Básicas Premium em Algodão | Básicos de Qualidade",
+    "description": "Camisetas básicas premium em algodão de alta qualidade, com caimento impecável e durabilidade. Básicos essenciais, elegantes e confortáveis — FILZ.",
+    "ogImage": "https://filz.com.br/assets/images/og-cover.jpg"
   },
   "hero": {
     "headline": "Menos excesso.\nMais presença.",

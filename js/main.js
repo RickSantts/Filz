@@ -50,13 +50,25 @@ async function boot() {
    Meta / SEO
    ============================================ */
 function applyMeta() {
-  document.title = config.seo.title;
-  setMeta('description', config.seo.description);
-  setMeta('og:title', config.seo.title, true);
-  setMeta('og:description', config.seo.description, true);
-  setMeta('og:image', config.seo.ogImage, true);
+  const seo = config.seo || {};
+  const domain = (config.brand && config.brand.domain) || 'filz.com.br';
+  const site = 'https://' + domain;
+  const absolute = (p) => /^https?:\/\//.test(p) ? p : site + '/' + String(p).replace(/^\//, '');
+
+  document.title = seo.title || 'FILZ — Básicos Premium';
+  setMeta('description', seo.description || '');
+  setMeta('og:site_name', config.brand && config.brand.name, true);
+  setMeta('og:title', document.title, true);
+  setMeta('og:description', seo.description || '', true);
+  setMeta('og:url', site, true);
+  setMeta('og:image', absolute(seo.ogImage || 'assets/images/og-cover.jpg'), true);
   setMeta('og:type', 'website', true);
   setMeta('twitter:card', 'summary_large_image', true);
+  setMeta('twitter:title', document.title, true);
+  setMeta('twitter:description', seo.description || '', true);
+  setMeta('twitter:image', absolute(seo.ogImage || 'assets/images/og-cover.jpg'), true);
+
+  injectStructuredData(site, absolute);
 }
 
 function setMeta(name, content, isProperty = false) {
@@ -69,6 +81,48 @@ function setMeta(name, content, isProperty = false) {
     document.head.appendChild(el);
   }
   el.setAttribute('content', content);
+}
+
+/* ============================================
+   Structured data (JSON-LD)
+   ============================================ */
+function injectStructuredData(site, absolute) {
+  const existing = document.getElementById('ld-products');
+  if (existing) existing.remove();
+
+  const products = (config.products || []).map(p => {
+    const colors = (p.colors || []).map(c => c.name).filter(Boolean).join(', ');
+    const sizes = (p.sizes || []);
+    const hasImage = (p.colors || []).some(c => c.image);
+    const item = {
+      '@type': 'Product',
+      name: p.name,
+      description: [p.description, p.details].filter(Boolean).join('. ') || undefined,
+      sku: p.id,
+      brand: { '@type': 'Brand', name: (config.brand && config.brand.name) || 'FILZ' },
+      offers: {
+        '@type': 'Offer',
+        price: (p.price || '').replace(/[^\d,]/g, '').replace(',', '.'),
+        priceCurrency: 'BRL',
+        availability: 'https://schema.org/InStock',
+        url: site + '#produtos'
+      }
+    };
+    if (colors) item.additionalProperty = { '@type': 'PropertyValue', name: 'Cor', value: colors };
+    if (sizes.length) item.size = sizes;
+    if (hasImage) {
+      const imgPath = p.colors.find(c => c.image).image;
+      item.image = absolute(imgPath);
+    }
+    return item;
+  });
+
+  const data = { '@context': 'https://schema.org', '@graph': products };
+  const script = document.createElement('script');
+  script.type = 'application/ld+json';
+  script.id = 'ld-products';
+  script.textContent = JSON.stringify(data);
+  document.head.appendChild(script);
 }
 
 /* ============================================
@@ -112,7 +166,7 @@ function renderHero() {
   const el = document.getElementById('hero');
   el.innerHTML = `
     <div class="hero__image-wrap">
-      <img src="${config.hero.image}" alt="FILZ — Básicos premium" loading="eager" fetchpriority="high">
+      <img src="${config.hero.image}" alt="FILZ — Básicos premium" loading="eager" fetchpriority="high" width="768" height="1376" decoding="async">
       <div class="hero__overlay"></div>
     </div>
     <div class="hero__content">
@@ -202,6 +256,7 @@ function renderProductCard(p) {
            class="product-card__img"
            id="img-${p.id}"
            loading="lazy"
+           decoding="async"
          >
          <span class="product-card__badge">Novo</span>
        </div>`;

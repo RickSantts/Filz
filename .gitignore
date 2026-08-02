@@ -14,3 +14,4 @@ Thumbs.db
 # Local dev state
 _kv.json
 _sessions.json
+.wrangler/

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin.html
+Disallow: /login.html
+Disallow: /register.html
+Disallow: /api/
+
+Sitemap: https://filz.com.br/sitemap.xml
