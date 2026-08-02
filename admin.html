@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FILZ Admin — Painel de Edição</title>
   <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="assets/images/Simbolo-Filz.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -624,9 +625,10 @@
       padding: 24px;
       z-index: 10000;
       opacity: 0;
+      pointer-events: none;
       transition: opacity 0.25s ease;
     }
-    .modal-overlay.open { opacity: 1; }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
 
     .modal {
       background: #161616;
