@@ -611,6 +611,97 @@
     }
     .pillar-card label { margin-bottom: 6px; }
 
+    /* ── Confirm modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(14,14,14,0.72);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .modal-overlay.open { opacity: 1; }
+
+    .modal {
+      background: #161616;
+      border: 1px solid rgba(176,141,87,0.35);
+      border-radius: 10px;
+      padding: 36px 32px 28px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      transform: translateY(12px) scale(0.98);
+      transition: transform 0.25s ease;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+    .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+    .modal__mark {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 20px;
+      border: 1px solid rgba(176,141,87,0.45);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--bronze);
+      background: rgba(176,141,87,0.08);
+    }
+    .modal__mark svg { width: 22px; height: 22px; }
+
+    .modal__title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .modal__msg {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-dim);
+      margin-bottom: 28px;
+    }
+
+    .modal__actions {
+      display: flex;
+      gap: 10px;
+    }
+    .modal__btn {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .modal__btn--primary {
+      background: var(--bronze);
+      color: #0E0E0E;
+      border: 1px solid var(--bronze);
+    }
+    .modal__btn--primary:hover { background: #C9A468; }
+    .modal__btn--ghost {
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+    .modal__btn--ghost:hover { border-color: var(--border-hover); color: var(--text); }
+
     /* ══════════════════════════════════
        RESPONSIVE — Mobile / Tablet
        ══════════════════════════════════ */
@@ -1055,6 +1146,21 @@
 <!-- Toast container -->
 <div class="toast-wrap" id="toasts"></div>
 
+<!-- Confirm modal -->
+<div class="modal-overlay" id="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+  <div class="modal">
+    <div class="modal__mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <h2 class="modal__title" id="confirm-title">Confirmar</h2>
+    <p class="modal__msg" id="confirm-msg"></p>
+    <div class="modal__actions">
+      <button class="modal__btn modal__btn--ghost" id="confirm-cancel">Cancelar</button>
+      <button class="modal__btn modal__btn--primary" id="confirm-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════════════════════════════════════════════════
      ADMIN JAVASCRIPT
 ══════════════════════════════════════════════════════════ -->
@@ -1327,8 +1433,13 @@ function updateProduct(idx, field, val) {
   }
 }
 
-function removeProduct(idx) {
-  if (!confirm(`Remover "${config.products[idx].name}"?`)) return;
+async function removeProduct(idx) {
+  const confirmed = await confirmDialog(`Remover "${config.products[idx].name}" do site?`, {
+    title: 'Remover produto',
+    okLabel: 'Remover',
+    cancelLabel: 'Cancelar'
+  });
+  if (!confirmed) return;
   config.products.splice(idx, 1);
   renderProducts();
 }
@@ -1491,9 +1602,52 @@ async function saveConfig() {
   }
 }
 
+/* ── Confirm modal ── */
+function confirmDialog(message, opts = {}) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('confirm-overlay');
+    const msg = document.getElementById('confirm-msg');
+    const title = document.getElementById('confirm-title');
+    const okBtn = document.getElementById('confirm-ok');
+    const cancelBtn = document.getElementById('confirm-cancel');
+
+    msg.textContent = message;
+    if (opts.title) title.textContent = opts.title;
+    if (opts.okLabel) okBtn.textContent = opts.okLabel;
+    if (opts.cancelLabel) cancelBtn.textContent = opts.cancelLabel;
+
+    okBtn.style.display = opts.hideCancel ? 'none' : '';
+    cancelBtn.style.display = opts.hideOk ? 'none' : '';
+    okBtn.classList.remove('modal__btn--danger');
+
+    const cleanup = (result) => {
+      overlay.classList.remove('open');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      overlay.removeEventListener('click', onOverlay);
+      resolve(result);
+    };
+    const onOk = () => cleanup(true);
+    const onCancel = () => cleanup(false);
+    const onOverlay = (e) => { if (e.target === overlay) cleanup(false); };
+
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    overlay.addEventListener('click', onOverlay);
+
+    okBtn.focus();
+    requestAnimationFrame(() => overlay.classList.add('open'));
+  });
+}
+
 /* ── Discard ── */
-function discardChanges() {
-  if (!confirm('Descartar todas as alterações não salvas?')) return;
+async function discardChanges() {
+  const confirmed = await confirmDialog('Descartar todas as alterações não salvas?', {
+    title: 'Descartar alterações',
+    okLabel: 'Descartar',
+    cancelLabel: 'Continuar editando'
+  });
+  if (!confirmed) return;
   config = deepClone(originalConfig);
   populateAll();
   showToast('Alterações descartadas.', 'success');
@@ -1538,7 +1692,12 @@ async function logout() {
   const msg = hasUnsavedChanges()
     ? 'Você tem alterações não salvas. Deseja sair mesmo assim?'
     : 'Deseja sair do modo admin?';
-  if (!confirm(msg)) return;
+  const confirmed = await confirmDialog(msg, {
+    title: 'Sair do painel',
+    okLabel: 'Sair',
+    cancelLabel: 'Cancelar'
+  });
+  if (!confirmed) return;
   await fetch('/api/auth/logout', { method: 'POST' });
   window.location.href = '/login.html';
 }
