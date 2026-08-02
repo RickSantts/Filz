@@ -610,6 +610,99 @@
       padding: 16px;
     }
     .pillar-card label { margin-bottom: 6px; }
+
+    /* ══════════════════════════════════
+       RESPONSIVE — Mobile / Tablet
+       ══════════════════════════════════ */
+    @media (max-width: 768px) {
+      .layout {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+      }
+
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .sidebar__brand {
+        padding: 12px 16px;
+        border-bottom: none;
+        border-right: 1px solid var(--border);
+      }
+      .sidebar__logo { font-size: 15px; }
+      .sidebar__sub { display: none; }
+
+      .sidebar__nav {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 2px;
+        padding: 4px;
+        flex: 1;
+      }
+      .sidebar__section-label { display: none; }
+
+      .nav-item {
+        padding: 8px 12px;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+      }
+      .nav-item.active {
+        border-bottom-color: var(--bronze);
+      }
+
+      .sidebar__footer {
+        flex-direction: row;
+        padding: 8px 12px;
+        border-top: none;
+        border-left: 1px solid var(--border);
+      }
+      .sidebar__footer .btn-preview { width: auto; padding: 8px 12px; }
+
+      .main { overflow: visible; }
+
+      .topbar {
+        padding: 0 16px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+      .topbar__title { font-size: 13px; }
+      .topbar__actions { gap: 6px; }
+      .btn { padding: 7px 12px; font-size: 11px; }
+
+      .content { padding: 16px; }
+
+      .form-row,
+      .form-row-3,
+      .pillar-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .img-upload-area {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+      }
+      .img-upload-info { width: 100%; }
+
+      .product-item__header { padding: 12px 14px; }
+      .product-item__actions { gap: 4px; }
+
+      .toast-wrap { left: 16px; right: 16px; bottom: 16px; }
+    }
   </style>
 </head>
 
@@ -1426,8 +1519,25 @@ function escH(str = '') {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+/* ── Unsaved changes guard ── */
+function hasUnsavedChanges() {
+  if (!config || !originalConfig) return false;
+  const clean = c => { const x = deepClone(c); delete x._instrucoes; return x; };
+  return JSON.stringify(clean(config)) !== JSON.stringify(clean(originalConfig));
+}
+
+window.addEventListener('beforeunload', (e) => {
+  if (hasUnsavedChanges()) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
 /* ── Logout ── */
 async function logout() {
+  if (hasUnsavedChanges() && !confirm('Você tem alterações não salvas. Deseja sair mesmo assim?')) {
+    return;
+  }
   await fetch('/api/auth/logout', { method: 'POST' });
   window.location.href = '/login.html';
 }
