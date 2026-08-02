@@ -215,6 +215,14 @@ export async function onRequestGet(context) {
   <meta name="robots" content="index, follow">
   <meta name="author" content="${escAttr((config.brand && config.brand.name) || 'FILZ')}">
   <meta name="theme-color" content="#F5F3EF">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WLJD26DDGJ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-WLJD26DDGJ');
+  </script>
   <link rel="icon" type="image/png" href="${escAttr(absolute(config, 'assets/images/Simbolo-Filz.png'))}">
   <link rel="canonical" href="${escAttr(url)}">
   <meta property="og:site_name" content="${escAttr((config.brand && config.brand.name) || 'FILZ')}">
