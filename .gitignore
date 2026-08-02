@@ -9,3 +9,8 @@ Thumbs.db
 # Environment
 .env
 .env.local
+.dev.vars
+
+# Local dev state
+_kv.json
+_sessions.json

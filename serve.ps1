@@ -4,6 +4,80 @@ $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://localhost:$port/")
 $listener.Start()
 
+# ── Load env vars from .dev.vars ──
+$devVarsPath = Join-Path $root ".dev.vars"
+if (Test-Path $devVarsPath) {
+  Get-Content $devVarsPath | ForEach-Object {
+    if ($_ -match '^\s*([^#=]+)=(.+)') {
+      [Environment]::SetEnvironmentVariable($Matches[1].Trim(), $Matches[2].Trim())
+    }
+  }
+}
+
+# ── Load brand/email config from config.json ──
+$script:cfg = $null
+$cfgPath = Join-Path $root "config.json"
+if (Test-Path $cfgPath) {
+  try { $script:cfg = Get-Content $cfgPath -Raw | ConvertFrom-Json } catch { $script:cfg = $null }
+}
+
+function New-EmailSignature {
+  param($cfg)
+  if (-not $cfg) { return "" }
+  if (-not $cfg.email -or -not $cfg.email.signatureEnabled) { return "" }
+  $b = $cfg.brand
+  $e = $cfg.email
+  $whatsappClean = ("" + $b.whatsapp) -replace '[^\d]', ''
+  $sig = @"
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin-top:26px;">
+  <tr>
+    <td style="border-top:1px solid #D9D4CC;padding-top:18px;">
+      <p style="margin:0;font-size:14px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#111111;">$($b.name)</p>
+      <p style="margin:4px 0 0;font-size:12px;color:#5E5A54;">$($b.tagline)</p>
+      <p style="margin:12px 0 0;font-size:12px;color:#5E5A54;">
+        <a href="$($b.instagram)" style="color:#B08D57;text-decoration:none;">$($b.instagramHandle)</a>
+        &nbsp;·&nbsp;
+        <a href="https://wa.me/$whatsappClean" style="color:#B08D57;text-decoration:none;">WhatsApp</a>
+        &nbsp;·&nbsp;
+        $($b.domain)
+      </p>
+      <p style="margin:8px 0 0;font-size:12px;color:#5E5A54;">
+        <a href="mailto:$($b.email)" style="color:#B08D57;text-decoration:none;">$($b.email)</a>
+      </p>
+    </td>
+  </tr>
+</table>
+<p style="font-size:11px;color:#8A857D;margin:16px 0 0;border-top:1px solid #F5F3EF;padding-top:12px;">$($e.signatureFooterNote)</p>
+"@
+  return $sig
+}
+
+# ── Local KV store (simulates Cloudflare KV) ──
+$kvPath = Join-Path $root "_kv.json"
+if (!(Test-Path $kvPath)) { Set-Content $kvPath '{}' -NoNewline }
+function Get-KV {
+  return (Get-Content $kvPath -Raw | ConvertFrom-Json)
+}
+function Set-KV($key, $value) {
+  $kv = Get-KV
+  if ($kv -is [PSCustomObject]) {
+    $kv | Add-Member -Force -MemberType NoteProperty -Name $key -Value $value
+  } else {
+    $kv = @{}; $kv.$key = $value
+  }
+  $kv | ConvertTo-Json | Set-Content $kvPath -NoNewline
+}
+
+# ── Session store ──
+$sessPath = Join-Path $root "_sessions.json"
+if (!(Test-Path $sessPath)) { Set-Content $sessPath '{}' -NoNewline }
+function Get-Sessions {
+  return (Get-Content $sessPath -Raw | ConvertFrom-Json)
+}
+function Save-Sessions($s) {
+  $s | ConvertTo-Json | Set-Content $sessPath -NoNewline
+}
+
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Gray
 Write-Host "  FILZ - Servidor Iniciado" -ForegroundColor Green
@@ -159,24 +233,43 @@ while ($listener.IsListening) {
         $apiKey = $env:RESEND_API_KEY
         if (![string]::IsNullOrEmpty($apiKey)) {
           Write-Host "[WAITLIST] Enviando e-mails via Resend..." -ForegroundColor Gray
+
+          $cfg = $script:cfg
+          $b = $cfg.brand
+          $e = $cfg.email
+          $from = "$($b.name) <$($b.email)>"
+          $clientSubject = if ($e.welcomeSubject) { $e.welcomeSubject } else { "Bem-vindo à lista de espera da FILZ ✦" }
+          $signatureHtml = New-EmailSignature $cfg
+          $clientHtml = @"
+<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#111111;line-height:1.6;padding:20px;">
+  <h2 style="font-weight:300;font-size:24px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:20px;">$($b.name)</h2>
+  <hr style="border:0;border-top:1px solid #D9D4CC;margin:20px 0;" />
+  <p>Olá,</p>
+  <p>Agradecemos o seu interesse na nossa marca. Você acabou de ser adicionado à lista de espera para o lançamento da nossa primeira coleção.</p>
+  <p><strong>Menos excesso. Mais presença.</strong></p>
+  <p>Avisaremos você em primeira mão assim que as primeiras peças estiverem disponíveis para compra no site.</p>
+  $signatureHtml
+</div>
+"@
+
           $clientBody = @{
-            from = "FILZ <contato@filz.com.br>"
+            from = $from
             to = $email
-            subject = "Bem-vindo a lista de espera da FILZ"
-            html = "<h3>FILZ</h3><p>Bem-vindo a lista de espera! Avisaremos assim que a colecao for lancada.</p>"
+            subject = $clientSubject
+            html = $clientHtml
           } | ConvertTo-Json -Compress
           
           $adminBody = @{
-            from = "FILZ <contato@filz.com.br>"
-            to = "contato@filz.com.br"
+            from = $from
+            to = $b.email
             subject = "Novo lead na lista de espera!"
-            html = "<p>Email: $email</p>"
+            html = "<div style=`"font-family:sans-serif;padding:20px;`"><h3>Novo cadastro na lista de espera da $($b.name)</h3><p>E-mail do lead: <strong>$email</strong></p><p>Data/Hora: $((Get-Date).ToString('dd/MM/yyyy HH:mm'))</p></div>"
           } | ConvertTo-Json -Compress
           
           $headers = @{ "Authorization" = "Bearer $apiKey" }
           try {
-            $null = Invoke-RestMethod -Uri "https://api.resend.com/emails" -Method POST -Headers $headers -ContentType "application/json" -Body $clientBody
-            $null = Invoke-RestMethod -Uri "https://api.resend.com/emails" -Method POST -Headers $headers -ContentType "application/json" -Body $adminBody
+            $null = Invoke-RestMethod -Uri "https://api.resend.com/emails" -Method POST -Headers $headers -ContentType "application/json; charset=utf-8" -Body $clientBody
+            $null = Invoke-RestMethod -Uri "https://api.resend.com/emails" -Method POST -Headers $headers -ContentType "application/json; charset=utf-8" -Body $adminBody
             Write-Host "[WAITLIST] E-mails de teste enviados." -ForegroundColor Green
           } catch {
             Write-Host "[WAITLIST ERRO] $($_.Exception.Message)" -ForegroundColor Red
@@ -189,6 +282,155 @@ while ($listener.IsListening) {
       } catch {
         WriteText $ctx 500 "application/json" '{"ok":false}'
       }
+      continue
+    }
+
+    # ── POST /api/auth/login ──
+    if ($method -eq "POST" -and $path -eq "/api/auth/login") {
+      $sr = New-Object System.IO.StreamReader($req.InputStream, [System.Text.Encoding]::UTF8)
+      $body = $sr.ReadToEnd(); $sr.Close()
+      $data = $body | ConvertFrom-Json
+      $password = $data.password
+
+      if ([string]::IsNullOrEmpty($password)) {
+        WriteText $ctx 400 "application/json" '{"ok":false,"message":"Digite a senha."}'
+        continue
+      }
+
+      $valid = $false
+      $kv = Get-KV
+      if ($kv.admin_hash) {
+        $hash = [System.Security.Cryptography.SHA256]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($password))
+        $hashHex = [System.BitConverter]::ToString($hash).Replace("-", "").ToLower()
+        $valid = ($hashHex -eq $kv.admin_hash)
+      }
+      if (!$valid -and $env:ADMIN_PASSWORD) {
+        $valid = ($password -eq $env:ADMIN_PASSWORD)
+      }
+
+      if ($valid) {
+        $sid = [System.Guid]::NewGuid().ToString()
+        $sessions = Get-Sessions
+        $sessions | Add-Member -Force -MemberType NoteProperty -Name $sid -Value @{exp=([DateTime]::UtcNow.AddDays(1).ToString('o'))}
+        Save-Sessions $sessions
+        $ctx.Response.Headers.Add("Set-Cookie", "filz_session=$sid; HttpOnly; Path=/; Max-Age=86400")
+        WriteText $ctx 200 "application/json" '{"ok":true}'
+      } else {
+        WriteText $ctx 401 "application/json" '{"ok":false,"message":"Senha incorreta"}'
+      }
+      continue
+    }
+
+    # ── GET /api/auth/check ──
+    if ($method -eq "GET" -and $path -eq "/api/auth/check") {
+      $cookie = $req.Headers["Cookie"]
+      $sid = ""
+      if ($cookie -match '(?:^|;\s*)filz_session=([^;]+)') { $sid = $Matches[1] }
+
+      if ([string]::IsNullOrEmpty($sid)) {
+        WriteText $ctx 401 "application/json" '{"ok":false}'
+        continue
+      }
+
+      $sessions = Get-Sessions
+      $session = $sessions.$sid
+      if (!$session) {
+        WriteText $ctx 401 "application/json" '{"ok":false}'
+        continue
+      }
+
+      $exp = [DateTime]::Parse($session.exp)
+      if ($exp -lt [DateTime]::UtcNow) {
+        WriteText $ctx 401 "application/json" '{"ok":false}'
+        continue
+      }
+
+      WriteText $ctx 200 "application/json" '{"ok":true,"role":"admin"}'
+      continue
+    }
+
+    # ── POST /api/auth/logout ──
+    if ($method -eq "POST" -and $path -eq "/api/auth/logout") {
+      $cookie = $req.Headers["Cookie"]
+      $sid = ""
+      if ($cookie -match '(?:^|;\s*)filz_session=([^;]+)') { $sid = $Matches[1] }
+      if (![string]::IsNullOrEmpty($sid)) {
+        $sessions = Get-Sessions
+        $sessions.PSObject.Properties.Remove($sid)
+        Save-Sessions $sessions
+      }
+      $ctx.Response.Headers.Add("Set-Cookie", "filz_session=; HttpOnly; Path=/; Max-Age=0")
+      WriteText $ctx 200 "application/json" '{"ok":true}'
+      continue
+    }
+
+    # ── POST /api/auth/forgot-password ──
+    if ($method -eq "POST" -and $path -eq "/api/auth/forgot-password") {
+      $sr = New-Object System.IO.StreamReader($req.InputStream, [System.Text.Encoding]::UTF8)
+      $body = $sr.ReadToEnd(); $sr.Close()
+
+      $adminEmail = $env:ADMIN_EMAIL
+      if ([string]::IsNullOrEmpty($adminEmail)) {
+        WriteText $ctx 500 "application/json" '{"ok":false,"message":"ADMIN_EMAIL nao configurado"}'
+        continue
+      }
+
+      $apiKey = $env:RESEND_API_KEY
+      if (![string]::IsNullOrEmpty($apiKey)) {
+        $pass = $env:ADMIN_PASSWORD
+        $html = @"
+<div style="font-family:sans-serif;max-width:500px;margin:0 auto;color:#111;padding:20px;">
+<h2 style="font-weight:300;font-size:22px;letter-spacing:0.15em;text-transform:uppercase;">FILZ</h2>
+<hr style="border:0;border-top:1px solid #D9D4CC;margin:20px 0;">
+<p>Ola,</p>
+<p>Alguem solicitou a recuperacao da senha do painel administrativo.</p>
+<p style="background:#F5F3EF;padding:12px 16px;border-radius:6px;font-family:monospace;font-size:16px;letter-spacing:0.1em;">$pass</p>
+<p>Se nao foi voce, ignore este e-mail.</p>
+</div>
+"@
+        $emailBody = @{from = "FILZ Admin <contato@filz.com.br>"; to = $adminEmail; subject = "Recuperacao de senha - FILZ Admin"; html = $html}
+        $emailJson = $emailBody | ConvertTo-Json -Compress
+        try {
+          $null = Invoke-RestMethod -Uri "https://api.resend.com/emails" -Method POST -Headers @{"Authorization" = "Bearer $apiKey"} -ContentType "application/json" -Body $emailJson
+        } catch { Write-Host "[FORGOT ERRO] $($_.Exception.Message)" -ForegroundColor Red }
+      } else {
+        Write-Host "[FORGOT] RESEND_API_KEY nao configurada - senha atual: $($env:ADMIN_PASSWORD)" -ForegroundColor Yellow
+      }
+
+      WriteText $ctx 200 "application/json" '{"ok":true}'
+      continue
+    }
+
+    # ── POST /api/auth/register ──
+    if ($method -eq "POST" -and $path -eq "/api/auth/register") {
+      $sr = New-Object System.IO.StreamReader($req.InputStream, [System.Text.Encoding]::UTF8)
+      $body = $sr.ReadToEnd(); $sr.Close()
+      $data = $body | ConvertFrom-Json
+      $email = $data.email
+      $password = $data.password
+
+      if ([string]::IsNullOrEmpty($email) -or !$email.Contains("@")) {
+        WriteText $ctx 400 "application/json" '{"ok":false,"message":"E-mail invalido"}'
+        continue
+      }
+      if ([string]::IsNullOrEmpty($password) -or $password.Length -lt 6) {
+        WriteText $ctx 400 "application/json" '{"ok":false,"message":"Senha deve ter no minimo 6 caracteres"}'
+        continue
+      }
+
+      $kv = Get-KV
+      if ($kv.admin_hash) {
+        WriteText $ctx 409 "application/json" '{"ok":false,"message":"Ja existe uma conta cadastrada"}'
+        continue
+      }
+
+      $hash = [System.Security.Cryptography.SHA256]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($password))
+      $hashHex = [System.BitConverter]::ToString($hash).Replace("-", "").ToLower()
+      Set-KV "admin_email" $email
+      Set-KV "admin_hash" $hashHex
+
+      Write-Host "[REGISTER] Conta criada: $email" -ForegroundColor Green
+      WriteText $ctx 200 "application/json" '{"ok":true}'
       continue
     }
 

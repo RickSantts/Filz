@@ -1,10 +1,10 @@
 {
   "brand": {
     "name": "FILZ",
-    "logoImage": "assets/images/Simbolo Filz.png",
+    "logoImage": "assets/images/Simbolo-Filz.png",
     "logoAlt": "FILZ — Marca de Básicos Premium",
     "tagline": "Menos excesso. Mais presença.",
-    "whatsapp": "5511999999999",
+    "whatsapp": "5538991952212",
     "instagram": "https://instagram.com/usefilz",
     "instagramHandle": "@usefilz",
     "email": "contato@filz.com.br",
@@ -197,5 +197,10 @@
     "placeholder": "Seu melhor e-mail",
     "cta": "Receber novidades",
     "apiUrl": ""
+  },
+  "email": {
+    "welcomeSubject": "Bem-vindo à lista de espera da FILZ ✦",
+    "signatureEnabled": true,
+    "signatureFooterNote": "Este é um e-mail automático. Não é necessário respondê-lo."
   }
 }
