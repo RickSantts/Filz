@@ -1198,11 +1198,16 @@ async function boot() {
     const res = await fetch('/api/config');
     config = await res.json();
     originalConfig = deepClone(config);
-    populateAll();
-    initSidebar();
   } catch(e) {
     showToast('Erro ao carregar a configuração: ' + e.message, 'error');
   }
+
+  try {
+    populateAll();
+  } catch(e) {
+    showToast('Erro ao preencher o formulário: ' + e.message, 'error');
+  }
+  initSidebar();
 }
 
 /* ── Deep clone helper ── */
@@ -1227,6 +1232,7 @@ function setNestedVal(obj, path, val) {
 /* ── Populate all data-field inputs ── */
 function populateAll() {
   document.querySelectorAll('[data-field]').forEach(el => {
+    if (el.type === 'file') return;
     const val = getNestedVal(config, el.dataset.field);
     if (val !== undefined) {
       if (el.type === 'checkbox') {
