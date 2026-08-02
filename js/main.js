@@ -22,10 +22,10 @@ const productState = {}; // { productId: { colorIndex, size } }
    ============================================ */
 async function boot() {
   try {
-    const res = await fetch('config.json');
+    const res = await fetch('/api/config');
     config = await res.json();
   } catch (e) {
-    console.error('Failed to load config.json:', e);
+    console.error('Failed to load config:', e);
     return;
   }
 

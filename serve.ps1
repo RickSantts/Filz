@@ -78,6 +78,17 @@ function Save-Sessions($s) {
   $s | ConvertTo-Json | Set-Content $sessPath -NoNewline
 }
 
+function Test-Authenticated($req) {
+  $cookie = $req.Headers["Cookie"]
+  $sid = ""
+  if ($cookie -match '(?:^|;\s*)filz_session=([^;]+)') { $sid = $Matches[1] }
+  if ([string]::IsNullOrEmpty($sid)) { return $false }
+  $session = (Get-Sessions).$sid
+  if (!$session) { return $false }
+  $exp = [DateTime]::Parse($session.exp)
+  return ($exp -ge [DateTime]::UtcNow)
+}
+
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Gray
 Write-Host "  FILZ - Servidor Iniciado" -ForegroundColor Green
@@ -122,8 +133,23 @@ while ($listener.IsListening) {
       continue
     }
 
+    # GET /api/config
+    if ($method -eq "GET" -and $path -eq "/api/config") {
+      if ($script:cfg) {
+        $json = $script:cfg | ConvertTo-Json -Depth 20
+        WriteText $ctx 200 "application/json" $json
+      } else {
+        WriteText $ctx 404 "application/json" '{"error":"Config nao encontrado"}'
+      }
+      continue
+    }
+
     # POST /api/save
     if ($method -eq "POST" -and $path -eq "/api/save") {
+      if (!(Test-Authenticated $req)) {
+        WriteText $ctx 401 "application/json" '{"ok":false,"message":"Nao autenticado"}'
+        continue
+      }
       $sr = New-Object System.IO.StreamReader($req.InputStream, [System.Text.Encoding]::UTF8)
       $body = $sr.ReadToEnd()
       $sr.Close()
@@ -131,6 +157,7 @@ while ($listener.IsListening) {
       try {
         $null = $body | ConvertFrom-Json
         [System.IO.File]::WriteAllText($cfgPath, $body, [System.Text.Encoding]::UTF8)
+        $script:cfg = $body | ConvertFrom-Json
         WriteText $ctx 200 "application/json" '{"ok":true}'
         Write-Host "[SAVE] config.json salvo" -ForegroundColor Green
       } catch {
@@ -141,6 +168,10 @@ while ($listener.IsListening) {
 
     # POST /api/upload
     if ($method -eq "POST" -and $path -eq "/api/upload") {
+      if (!(Test-Authenticated $req)) {
+        WriteText $ctx 401 "application/json" '{"ok":false,"message":"Nao autenticado"}'
+        continue
+      }
       try {
         $contentType = $req.ContentType
         $boundary = ""
@@ -194,9 +225,9 @@ while ($listener.IsListening) {
                 [System.IO.File]::WriteAllBytes($destPath, $fileBytes)
                 
                 # Double quote escaping in PowerShell string to avoid parsing errors
-                $jsonResponse = "{`"ok`":true,`"path`":`"assets/images/$safeFilename`"}"
+                $jsonResponse = "{`"ok`":true,`"path`":`"media/$safeFilename`"}"
                 WriteText $ctx 200 "application/json" $jsonResponse
-                Write-Host "[UPLOAD] Imagem salva: assets/images/$safeFilename" -ForegroundColor Green
+                Write-Host "[UPLOAD] Imagem salva: media/$safeFilename" -ForegroundColor Green
                 continue
               }
             }
@@ -437,6 +468,7 @@ while ($listener.IsListening) {
     # Static files
     if ($path -eq "/" -or $path -eq "") { $path = "/index.html" }
     if ($path -eq "/admin") { $path = "/admin.html" }
+    if ($path -like "/media/*") { $path = "/assets/images/" + ($path.Substring(7)) }
 
     $filePath = Join-Path $root ($path.TrimStart("/").Replace("/", "\"))
     if (Test-Path $filePath -PathType Leaf) {

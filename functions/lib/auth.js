@@ -32,6 +32,14 @@ export async function verifyToken(token, secret) {
   } catch { return null; }
 }
 
+export async function getUser(request, env) {
+  const cookie = request.headers.get('Cookie') || '';
+  const match = cookie.match(/(?:^|;\s*)filz_session=([^;]*)/);
+  if (!match) return null;
+  const secret = env.SESSION_SECRET || env.ADMIN_PASSWORD || 'fallback_secret';
+  return await verifyToken(match[1], secret);
+}
+
 export function cookieHeader(name, value, opts = {}) {
   const parts = [`${name}=${value}`];
   if (opts.httpOnly !== false) parts.push('HttpOnly');

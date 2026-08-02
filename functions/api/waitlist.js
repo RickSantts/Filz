@@ -1,3 +1,5 @@
+import { loadConfig } from '../lib/config.js';
+
 function escHtml(str = '') {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -49,16 +51,6 @@ function welcomeEmailHtml(config) {
   `;
 }
 
-async function loadConfig(request) {
-  try {
-    const res = await fetch(new URL('/config.json', request.url));
-    if (res.ok) return await res.json();
-  } catch (e) {
-    console.error('Falha ao carregar config.json:', e);
-  }
-  return {};
-}
-
 export async function onRequestPost(context) {
   try {
     const { request, env } = context;
@@ -87,7 +79,7 @@ export async function onRequestPost(context) {
       });
     }
 
-    const config = await loadConfig(request);
+    const config = await loadConfig(request, env);
     const b = config.brand || {};
     const e = config.email || {};
     const from = `${b.name || 'FILZ'} <${b.email || 'contato@filz.com.br'}>`;

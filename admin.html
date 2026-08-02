@@ -984,13 +984,13 @@ async function boot() {
   }
 
   try {
-    const res = await fetch('/config.json?t=' + Date.now());
+    const res = await fetch('/api/config');
     config = await res.json();
     originalConfig = deepClone(config);
     populateAll();
     initSidebar();
   } catch(e) {
-    showToast('Erro ao carregar config.json: ' + e.message, 'error');
+    showToast('Erro ao carregar a configuração: ' + e.message, 'error');
   }
 }
 
