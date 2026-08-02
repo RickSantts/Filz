@@ -345,6 +345,11 @@
       transition: border-color var(--transition), background var(--transition);
     }
     .img-upload-area:hover { border-color: var(--bronze); background: var(--bronze-dim); }
+    .img-upload-area.dragover {
+      border-color: var(--bronze);
+      background: var(--bronze-dim);
+      box-shadow: 0 0 0 2px rgba(176,149,102,0.35) inset;
+    }
 
     .img-preview {
       width: 72px;
@@ -472,6 +477,11 @@
       border: 2px solid rgba(255,255,255,0.1);
     }
     .color-item input { padding: 7px 10px; font-size: 12px; }
+    .color-item input.dragover {
+      border-color: var(--bronze);
+      background: var(--bronze-dim);
+      outline: 1px dashed var(--bronze);
+    }
     .btn-add-color {
       display: flex;
       align-items: center;
@@ -908,7 +918,7 @@
               <p class="img-upload-hint">Arraste ou clique para selecionar o arquivo da sua logo</p>
               <span class="img-upload-btn">Selecionar arquivo</span>
             </div>
-            <input type="file" id="logo-file" accept="image/*" onchange="uploadImage(this,'brand.logoImage','logo-preview-img','logo-placeholder','logo-path-label')">
+            <input type="file" id="logo-file" accept="image/*" data-field="brand.logoImage" onchange="uploadImage(this,'brand.logoImage','logo-preview-img','logo-placeholder','logo-path-label')">
           </div>
         </div>
 
@@ -1009,7 +1019,7 @@
               <p class="img-upload-hint">Recomendado: vertical, alta resolução, foco no produto</p>
               <span class="img-upload-btn">Selecionar arquivo</span>
             </div>
-            <input type="file" id="hero-file" accept="image/*" onchange="uploadImage(this,'hero.image','hero-preview-img','hero-placeholder','hero-path-label')">
+            <input type="file" id="hero-file" accept="image/*" data-field="hero.image" onchange="uploadImage(this,'hero.image','hero-preview-img','hero-placeholder','hero-path-label')">
           </div>
         </div>
       </div>
@@ -1239,6 +1249,7 @@ function populateAll() {
   renderPillars();
   populateLogoPreview();
   populateHeroPreview();
+  setupDragUpload();
 }
 
 /* ── Logo preview ── */
@@ -1273,10 +1284,8 @@ function syncInstagram(el) {
 }
 
 /* ── Image Upload ── */
-async function uploadImage(fileInput, configField, imgId, placeholderId, labelId) {
-  const file = fileInput.files[0];
-  if (!file) return;
-
+async function uploadFile(file, configField) {
+  if (!file) return null;
   const formData = new FormData();
   formData.append('file', file, file.name);
 
@@ -1285,17 +1294,89 @@ async function uploadImage(fileInput, configField, imgId, placeholderId, labelId
     const data = await res.json();
     if (data.ok) {
       setNestedVal(config, configField, data.path);
-      showImgPreview(data.path, imgId, placeholderId, labelId);
       showToast('Imagem enviada: ' + file.name, 'success');
+      return data.path;
     } else {
       showToast('Erro: ' + data.message, 'error');
+      return null;
     }
   } catch(e) {
-    // Fallback: use object URL for preview, keep local path concept
+    showToast('Servidor sem suporte a upload. Copie o arquivo manualmente para assets/images/', 'error');
+    return null;
+  }
+}
+
+async function uploadImage(fileInput, configField, imgId, placeholderId, labelId) {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const path = await uploadFile(file, configField);
+  if (path) {
+    showImgPreview(path, imgId, placeholderId, labelId);
+  } else {
     const url = URL.createObjectURL(file);
     showImgPreview(url, imgId, placeholderId, labelId);
-    showToast('Servidor sem suporte a upload. Copie o arquivo manualmente para assets/images/', 'error');
   }
+}
+
+/* ── Drag & drop nas imagens dos produtos ── */
+function setupDragUpload() {
+  document.querySelectorAll('.img-upload-area').forEach(area => {
+    const fileInput = area.querySelector('input[type="file"]');
+    const field = fileInput && fileInput.getAttribute('data-field');
+    if (!fileInput || !field) return;
+    area.addEventListener('dragover', e => {
+      e.preventDefault();
+      area.classList.add('dragover');
+    });
+    area.addEventListener('dragleave', e => {
+      area.classList.remove('dragover');
+    });
+    area.addEventListener('drop', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      area.classList.remove('dragover');
+      const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        showToast('Envie apenas imagens.', 'error');
+        return;
+      }
+      uploadFile(file, field).then(path => {
+        if (path) {
+          const img = area.querySelector('img.img-preview');
+          const ph  = area.querySelector('.img-preview-placeholder');
+          const lbl = area.querySelector('.img-upload-path');
+          if (img && ph && lbl) showImgPreview(path, img.id, ph.id, lbl.id);
+        }
+      });
+    });
+  });
+}
+function onColorDragOver(ev) {
+  ev.preventDefault();
+  ev.currentTarget.classList.add('dragover');
+}
+function onColorDragLeave(ev) {
+  ev.currentTarget.classList.remove('dragover');
+}
+function dropColorImage(pi, ci, ev) {
+  ev.preventDefault();
+  ev.stopPropagation();
+  const input = ev.currentTarget;
+  input.classList.remove('dragover');
+  const file = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showToast('Envie apenas imagens.', 'error');
+    return;
+  }
+  uploadFile(file, `products.${pi}.colors.${ci}.image`).then(path => {
+    if (path) {
+      input.value = path;
+      input.style.borderColor = '';
+    }
+  });
 }
 
 /* ── Products ── */
@@ -1399,8 +1480,11 @@ function colorRow(pi, ci, c) {
         oninput="updateColor(${pi},${ci},'hex',this.value)">
       <input type="text" value="${escH(c.name)}" placeholder="Nome da cor"
         oninput="updateColor(${pi},${ci},'name',this.value)">
-      <input type="text" value="${escH(c.image)}" placeholder="assets/images/..."
-        oninput="updateColor(${pi},${ci},'image',this.value)">
+      <input type="text" value="${escH(c.image)}" placeholder="assets/images/... (arraste a foto aqui)"
+        oninput="updateColor(${pi},${ci},'image',this.value)"
+        ondragover="onColorDragOver(event)"
+        ondragleave="onColorDragLeave(event)"
+        ondrop="dropColorImage(${pi},${ci},event)">
       <button class="btn-icon danger" onclick="removeColor(${pi},${ci})" title="Remover cor">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
