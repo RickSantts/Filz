@@ -1,4 +1,4 @@
-import { getUser } from '../../lib/auth.js';
+import { getUser } from '../lib/auth.js';
 
 export async function onRequestPost(context) {
   try {

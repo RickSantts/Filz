@@ -1,4 +1,4 @@
-import { getUser } from '../../lib/auth.js';
+import { getUser } from '../lib/auth.js';
 
 const EXT_MIME = {
   '.jpg': 'image/jpeg',
