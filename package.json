@@ -2,5 +2,6 @@
   "name": "filz",
   "version": "1.0.0",
   "description": "FILZ — Básicos Premium",
-  "private": true
+  "private": true,
+  "type": "module"
 }

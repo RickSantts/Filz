@@ -239,7 +239,7 @@ function renderProductCard(p) {
   const isPlaceholder = p.placeholder || !activeColor.image;
 
   const imageHtml = isPlaceholder
-    ? `<div class="product-card__img-wrap is-placeholder" id="img-wrap-${p.id}">
+    ? `<a class="product-card__img-wrap is-placeholder" id="img-wrap-${p.id}" href="/p/${p.id}" aria-label="${escHtml(p.name)} — ver detalhes">
          <div class="product-placeholder">
            <svg class="product-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
@@ -248,8 +248,8 @@ function renderProductCard(p) {
            </svg>
            <span class="product-placeholder__text">Foto em breve</span>
          </div>
-       </div>`
-    : `<div class="product-card__img-wrap" id="img-wrap-${p.id}">
+       </a>`
+    : `<a class="product-card__img-wrap" id="img-wrap-${p.id}" href="/p/${p.id}" aria-label="${escHtml(p.name)} — ver detalhes">
          <img
            src="${activeColor.image}"
            alt="${escHtml(p.name)} — ${escHtml(activeColor.name)}"
@@ -259,14 +259,14 @@ function renderProductCard(p) {
            decoding="async"
          >
          <span class="product-card__badge">Novo</span>
-       </div>`;
+       </a>`;
 
   return `
     <article class="product-card" id="card-${p.id}" aria-label="Produto: ${escHtml(p.name)}">
       ${imageHtml}
 
       <div class="product-card__body">
-        <h3 class="product-card__name">${escHtml(p.name)}</h3>
+        <h3 class="product-card__name"><a class="product-card__name-link" href="/p/${p.id}">${escHtml(p.name)}</a></h3>
         <p class="product-card__desc">${escHtml(p.description)}</p>
         <p class="product-card__details">${escHtml(p.details)}</p>
 

@@ -465,6 +465,23 @@ while ($listener.IsListening) {
       continue
     }
 
+    # ── GET /p/[id] (página de produto via SSR) ──
+    if ($method -eq "GET" -and $path -like "/p/*") {
+      $prodId = [System.Net.WebUtility]::UrlDecode($path.Substring(3).Trim("/"))
+      $outFile = Join-Path $env:TEMP ("filz_p_" + [guid]::NewGuid().ToString("N") + ".html")
+      $nodeScript = Join-Path $root "scripts\serve-product.mjs"
+      & node $nodeScript $prodId $outFile 2>$null | Out-Null
+      if ($LASTEXITCODE -eq 0 -and (Test-Path $outFile)) {
+        $bytes = [System.IO.File]::ReadAllBytes($outFile)
+        Remove-Item $outFile -Force
+        WriteBytes $ctx 200 "text/html; charset=utf-8" $bytes
+      } else {
+        if (Test-Path $outFile) { Remove-Item $outFile -Force }
+        WriteText $ctx 404 "text/html" "<h1>404 Not Found</h1>"
+      }
+      continue
+    }
+
     # Static files
     if ($path -eq "/" -or $path -eq "") { $path = "/index.html" }
     if ($path -eq "/admin") { $path = "/admin.html" }
