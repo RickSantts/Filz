@@ -1535,9 +1535,10 @@ window.addEventListener('beforeunload', (e) => {
 
 /* ── Logout ── */
 async function logout() {
-  if (hasUnsavedChanges() && !confirm('Você tem alterações não salvas. Deseja sair mesmo assim?')) {
-    return;
-  }
+  const msg = hasUnsavedChanges()
+    ? 'Você tem alterações não salvas. Deseja sair mesmo assim?'
+    : 'Deseja sair do modo admin?';
+  if (!confirm(msg)) return;
   await fetch('/api/auth/logout', { method: 'POST' });
   window.location.href = '/login.html';
 }
