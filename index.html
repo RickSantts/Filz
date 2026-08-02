@@ -1,27 +1,23 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- SEO — filled dynamically by main.js from config.json -->
+  <!-- SEO -->
   <title>FILZ — Camisetas Básicas Premium em Algodão | Básicos de Qualidade</title>
-  <meta name="description"
-    content="Camisetas básicas premium em algodão de alta qualidade, com caimento impecável e durabilidade. Básicos essenciais, elegantes e confortáveis — FILZ.">
+  <meta name="description" content="Camisetas básicas premium em algodão de alta qualidade, com caimento impecável e durabilidade. Básicos essenciais, elegantes e confortáveis — FILZ.">
   <meta name="robots" content="index, follow">
   <meta name="author" content="FILZ">
   <meta name="theme-color" content="#F5F3EF">
   <link rel="icon" type="image/png" href="assets/images/Simbolo-Filz.png">
   <link rel="apple-touch-icon" href="assets/images/Simbolo-Filz.png">
   <link rel="canonical" href="https://filz.com.br">
-  <meta name="msvalidate.01" content="B7D6971E17EAC298E1C33105D4C94F06" />
 
   <!-- Open Graph -->
   <meta property="og:site_name" content="FILZ">
   <meta property="og:title" content="FILZ — Camisetas Básicas Premium em Algodão">
-  <meta property="og:description"
-    content="Básicos premium em algodão de alta qualidade, com caimento impecável e durabilidade.">
+  <meta property="og:description" content="Básicos premium em algodão de alta qualidade, com caimento impecável e durabilidade.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://filz.com.br">
   <meta property="og:image" content="https://filz.com.br/assets/images/og-cover.jpg">
@@ -33,32 +29,22 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="FILZ — Camisetas Básicas Premium em Algodão">
-  <meta name="twitter:description"
-    content="Básicos premium em algodão de alta qualidade, com caimento impecável e durabilidade.">
+  <meta name="twitter:description" content="Básicos premium em algodão de alta qualidade, com caimento impecável e durabilidade.">
   <meta name="twitter:image" content="https://filz.com.br/assets/images/og-cover.jpg">
   <meta name="twitter:image:alt" content="FILZ — Básicos Premium em Algodão">
+
+  <!-- Fontes (display=swap evita bloqueio de render) -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Saira:wght@300;400;500&family=Inter:wght@300;400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Saira:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Saira:wght@300;400;500&family=Inter:wght@300;400;500&display=swap">
+  </noscript>
 
   <!-- Preload do hero (LCP) -->
   <link rel="preload" as="image" href="assets/images/hero_model.jpg" fetchpriority="high">
 
-  <!-- Preconnect to Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
-
-  <!-- Critical inline CSS to avoid FOUC -->
-  <style>
-    body {
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    body.ready {
-      opacity: 1;
-    }
-  </style>
 
   <!-- Dados estruturados: marca e site -->
   <script type="application/ld+json">
@@ -98,70 +84,315 @@
   <!-- ============================================
        NAVBAR
        ============================================ -->
-  <header id="nav" class="nav" role="banner"></header>
+  <header id="nav" class="nav" role="banner">
+    <div class="nav__left"></div>
+    <a href="#" class="nav__logo" aria-label="FILZ — início">
+      <img src="assets/images/Simbolo-Filz.png" alt="FILZ — Marca de Básicos Premium" class="nav__logo-img">
+    </a>
+    <nav class="nav__links" aria-label="Navegação principal">
+      <a href="#produtos" class="nav__link">Coleção</a>
+      <a href="#medidas" class="nav__link">Medidas</a>
+      <a href="https://instagram.com/usefilz" class="nav__link nav__link--cta" target="_blank" rel="noopener noreferrer" aria-label="Instagram da FILZ">Instagram</a>
+    </nav>
+  </header>
 
   <main>
     <!-- ============================================
          HERO
          ============================================ -->
-    <section id="hero" class="hero" aria-label="Apresentação da marca"></section>
+    <section id="hero" class="hero" aria-label="Apresentação da marca">
+      <div class="hero__image-wrap">
+        <img src="assets/images/hero_model.jpg" alt="FILZ — Básicos premium" loading="eager" fetchpriority="high" width="768" height="1376" decoding="async">
+        <div class="hero__overlay"></div>
+      </div>
+      <div class="hero__content">
+        <p class="hero__label">FILZ — Coleção 01</p>
+        <h1 class="hero__headline">Menos excesso.<br>Mais presença.</h1>
+        <p class="hero__sub">Básicos premium para quem valoriza qualidade, conforto e confiança.</p>
+        <div class="hero__actions">
+          <a href="#produtos" class="btn btn--primary" id="hero-cta-colecao">
+            Conhecer coleção <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <a href="https://instagram.com/usefilz" class="btn btn--outline" target="_blank" rel="noopener noreferrer" id="hero-cta-instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>&nbsp; Instagram
+          </a>
+        </div>
+      </div>
+      <div class="scroll-hint" aria-hidden="true">
+        <span class="scroll-hint__line"></span>
+      </div>
+    </section>
 
     <!-- ============================================
          SOBRE
          ============================================ -->
-    <section id="about" class="about section" aria-labelledby="about-title"></section>
+    <section id="about" class="about section" aria-labelledby="about-title">
+      <div class="container">
+        <div class="about__inner">
+          <span class="t-label">Sobre</span>
+          <div class="divider divider--left"></div>
+          <h2 class="about__title" id="about-title">Acreditamos que estilo não precisa de excessos.</h2>
+          <p class="about__text">Criamos peças com foco em qualidade, conforto e caimento. Cada detalhe é pensado para entregar uma experiência simples, elegante e duradoura.</p>
+        </div>
+      </div>
+    </section>
 
     <!-- ============================================
          PRODUTOS
          ============================================ -->
-    <section id="produtos" class="products" aria-labelledby="products-title"></section>
+    <section id="produtos" class="products" aria-labelledby="products-title">
+      <div class="container">
+        <div class="products__header">
+          <span class="t-label">Coleção</span>
+          <div class="divider divider--left"></div>
+          <h2 class="products__title" id="products-title">Básicos essenciais.</h2>
+        </div>
+        <div class="products__grid" id="products-grid">
+
+          <article class="product-card" id="card-essential-tee" aria-label="Produto: Essential Tee">
+            <div class="product-card__img-wrap is-placeholder">
+              <div class="product-placeholder">
+                <svg class="product-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span class="product-placeholder__text">Foto em breve</span>
+              </div>
+            </div>
+            <div class="product-card__body">
+              <h3 class="product-card__name">Essential Tee</h3>
+              <p class="product-card__desc">100% algodão · 180g · Modelagem Casual</p>
+              <p class="product-card__details">Tecido suave ao toque, resistente à lavagem e com caimento perfeito para o dia a dia.</p>
+              <div class="selector-group" style="margin-top:20px;">
+                <p class="selector-label">Cor — <span>Branco</span></p>
+                <div class="color-swatches" role="radiogroup" aria-label="Cor">
+                  <button class="color-swatch active" style="background:#F5F3EF; box-shadow:inset 0 0 0 1px #D9D4CC;" aria-label="Branco" title="Branco" role="radio" aria-checked="true"></button>
+                  <button class="color-swatch" style="background:#111111;" aria-label="Preto" title="Preto" role="radio" aria-checked="false"></button>
+                  <button class="color-swatch" style="background:#C4A882;" aria-label="Areia" title="Areia" role="radio" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="selector-group">
+                <p class="selector-label">Tamanho</p>
+                <div class="size-options" role="radiogroup" aria-label="Tamanho">
+                  <button class="size-btn" role="radio" aria-checked="false">PP</button>
+                  <button class="size-btn" role="radio" aria-checked="false">P</button>
+                  <button class="size-btn" role="radio" aria-checked="false">M</button>
+                  <button class="size-btn" role="radio" aria-checked="false">G</button>
+                  <button class="size-btn" role="radio" aria-checked="false">GG</button>
+                </div>
+              </div>
+              <p class="product-card__price">R$ 89,90</p>
+              <div class="product-card__cta">
+                <button class="btn btn--dark" aria-label="Comprar Essential Tee pelo WhatsApp">
+                  <span style="display:flex;align-items:center;gap:8px;">
+                    <span style="width:16px;height:16px;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg></span>
+                    Comprar pelo WhatsApp
+                  </span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article class="product-card" id="card-essential-tee-oversized" aria-label="Produto: Essential Tee Oversized">
+            <div class="product-card__img-wrap is-placeholder">
+              <div class="product-placeholder">
+                <svg class="product-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span class="product-placeholder__text">Foto em breve</span>
+              </div>
+            </div>
+            <div class="product-card__body">
+              <h3 class="product-card__name">Essential Tee Oversized</h3>
+              <p class="product-card__desc">100% algodão · 200g · Modelagem Oversized</p>
+              <p class="product-card__details">Corte largo e relaxado para um look moderno e confortável.</p>
+              <div class="selector-group" style="margin-top:20px;">
+                <p class="selector-label">Cor — <span>Preto</span></p>
+                <div class="color-swatches" role="radiogroup" aria-label="Cor">
+                  <button class="color-swatch active" style="background:#111111;" aria-label="Preto" title="Preto" role="radio" aria-checked="true"></button>
+                  <button class="color-swatch" style="background:#C4A882;" aria-label="Areia" title="Areia" role="radio" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="selector-group">
+                <p class="selector-label">Tamanho</p>
+                <div class="size-options" role="radiogroup" aria-label="Tamanho">
+                  <button class="size-btn" role="radio" aria-checked="false">P</button>
+                  <button class="size-btn" role="radio" aria-checked="false">M</button>
+                  <button class="size-btn" role="radio" aria-checked="false">G</button>
+                  <button class="size-btn" role="radio" aria-checked="false">GG</button>
+                </div>
+              </div>
+              <p class="product-card__price">R$ 99,90</p>
+              <div class="product-card__cta">
+                <button class="btn btn--dark" aria-label="Comprar Essential Tee Oversized pelo WhatsApp">
+                  <span style="display:flex;align-items:center;gap:8px;">
+                    <span style="width:16px;height:16px;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg></span>
+                    Comprar pelo WhatsApp
+                  </span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article class="product-card" id="card-essential-tee-pocket" aria-label="Produto: Essential Tee Pocket">
+            <div class="product-card__img-wrap is-placeholder">
+              <div class="product-placeholder">
+                <svg class="product-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span class="product-placeholder__text">Foto em breve</span>
+              </div>
+            </div>
+            <div class="product-card__body">
+              <h3 class="product-card__name">Essential Tee Pocket</h3>
+              <p class="product-card__desc">100% algodão · 180g · Bolso funcional</p>
+              <p class="product-card__details">Detalhe de bolso no peito, elegante e funcional para o cotidiano.</p>
+              <div class="selector-group" style="margin-top:20px;">
+                <p class="selector-label">Cor — <span>Branco</span></p>
+                <div class="color-swatches" role="radiogroup" aria-label="Cor">
+                  <button class="color-swatch active" style="background:#F5F3EF; box-shadow:inset 0 0 0 1px #D9D4CC;" aria-label="Branco" title="Branco" role="radio" aria-checked="true"></button>
+                  <button class="color-swatch" style="background:#111111;" aria-label="Preto" title="Preto" role="radio" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="selector-group">
+                <p class="selector-label">Tamanho</p>
+                <div class="size-options" role="radiogroup" aria-label="Tamanho">
+                  <button class="size-btn" role="radio" aria-checked="false">PP</button>
+                  <button class="size-btn" role="radio" aria-checked="false">P</button>
+                  <button class="size-btn" role="radio" aria-checked="false">M</button>
+                  <button class="size-btn" role="radio" aria-checked="false">G</button>
+                  <button class="size-btn" role="radio" aria-checked="false">GG</button>
+                </div>
+              </div>
+              <p class="product-card__price">R$ 94,90</p>
+              <div class="product-card__cta">
+                <button class="btn btn--dark" aria-label="Comprar Essential Tee Pocket pelo WhatsApp">
+                  <span style="display:flex;align-items:center;gap:8px;">
+                    <span style="width:16px;height:16px;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg></span>
+                    Comprar pelo WhatsApp
+                  </span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
 
     <!-- ============================================
          GUIA DE MEDIDAS
          ============================================ -->
-    <section id="medidas" class="sizing" aria-labelledby="sizing-title"></section>
+    <section id="medidas" class="sizing" aria-labelledby="sizing-title">
+      <div class="container">
+        <span class="t-label" style="color:rgba(245,243,239,0.45);">Guia</span>
+        <div class="divider divider--left"></div>
+        <h2 class="sizing__title" id="sizing-title">Guia de Medidas</h2>
+        <p class="sizing__subtitle">Medidas aproximadas em centímetros. Em caso de dúvida, entre em contato pelo WhatsApp.</p>
+        <div class="sizing__table-wrap">
+          <table class="sizing__table" aria-label="Tabela de medidas">
+            <thead>
+              <tr>
+                <th scope="col">Tamanho</th>
+                <th scope="col">Ombro</th>
+                <th scope="col">Tórax</th>
+                <th scope="col">Comprimento</th>
+                <th scope="col">Manga</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>PP</strong></td><td>40</td><td>88</td><td>66</td><td>19</td></tr>
+              <tr><td><strong>P</strong></td><td>42</td><td>92</td><td>68</td><td>20</td></tr>
+              <tr><td><strong>M</strong></td><td>44</td><td>96</td><td>70</td><td>21</td></tr>
+              <tr><td><strong>G</strong></td><td>46</td><td>100</td><td>72</td><td>22</td></tr>
+              <tr><td><strong>GG</strong></td><td>48</td><td>104</td><td>74</td><td>23</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="sizing__note sizing__note--warning">⚠ Valores fictícios — substitua pelas medidas reais das suas peças antes de publicar.</p>
+        <p class="sizing__note">Dúvidas? Fale pelo WhatsApp ou Instagram.</p>
+      </div>
+    </section>
 
     <!-- ============================================
          QUALIDADE / PILARES
          ============================================ -->
-    <section id="pillars" class="pillars section" aria-labelledby="pillars-title"></section>
+    <section id="pillars" class="pillars section" aria-labelledby="pillars-title">
+      <div class="container">
+        <span class="t-label">Qualidade</span>
+        <div class="divider divider--left"></div>
+        <h2 class="pillars__title" id="pillars-title">O que nos define.</h2>
+        <div class="pillars__grid">
+          <div class="pillar">
+            <div class="pillar__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></div>
+            <h3 class="pillar__title">100% Algodão</h3>
+            <p class="pillar__text">Matéria-prima selecionada para máximo conforto e durabilidade.</p>
+          </div>
+          <div class="pillar">
+            <div class="pillar__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg></div>
+            <h3 class="pillar__title">Conforto</h3>
+            <p class="pillar__text">Leveza e suavidade do primeiro ao último uso.</p>
+          </div>
+          <div class="pillar">
+            <div class="pillar__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <h3 class="pillar__title">Durabilidade</h3>
+            <p class="pillar__text">Resistente às lavagens, sem perder forma ou caimento.</p>
+          </div>
+          <div class="pillar">
+            <div class="pillar__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
+            <h3 class="pillar__title">Caimento</h3>
+            <p class="pillar__text">Modelagem pensada para valorizar o corpo naturalmente.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- ============================================
          MANIFESTO
          ============================================ -->
-    <section id="manifesto" class="manifesto" aria-labelledby="manifesto-title"></section>
+    <section id="manifesto" class="manifesto" aria-labelledby="manifesto-title">
+      <div class="container">
+        <h2 class="manifesto__title" id="manifesto-title">Mais presença.</h2>
+        <p class="manifesto__text">A FILZ nasceu da ideia de que qualidade e simplicidade caminham juntas. Criamos peças para quem prefere presença ao excesso.</p>
+      </div>
+    </section>
 
     <!-- ============================================
          LISTA DE ESPERA
          ============================================ -->
-    <section id="waitlist" class="waitlist" aria-labelledby="waitlist-title"></section>
+    <section id="waitlist" class="waitlist" aria-labelledby="waitlist-title">
+      <div class="container">
+        <span class="t-label" style="color:rgba(245,243,239,0.45);">Lista de espera</span>
+        <div class="divider divider--left"></div>
+        <h2 class="waitlist__title" id="waitlist-title">Primeira coleção em desenvolvimento.</h2>
+        <p class="waitlist__subtitle">Seja o primeiro a saber quando estiver disponível.</p>
+        <form class="waitlist__form" id="waitlist-form" novalidate aria-label="Formulário de lista de espera">
+          <label for="waitlist-email" class="sr-only">E-mail</label>
+          <input type="email" id="waitlist-email" name="email" class="waitlist__input" placeholder="Seu melhor e-mail" required autocomplete="email">
+          <button type="submit" class="waitlist__btn" id="waitlist-submit">Receber novidades</button>
+        </form>
+        <p class="waitlist__success" id="waitlist-success" role="alert" style="display:none;">
+          Perfeito. Você será o primeiro a saber. ✦
+        </p>
+      </div>
+    </section>
   </main>
 
   <!-- ============================================
        RODAPÉ
        ============================================ -->
-  <footer id="footer" class="footer" role="contentinfo"></footer>
+  <footer id="footer" class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__inner">
+        <div>
+          <p class="footer__logo">FILZ</p>
+        </div>
+        <div class="footer__links">
+          <a href="https://instagram.com/usefilz" class="footer__link" target="_blank" rel="noopener noreferrer" aria-label="Instagram">@usefilz</a>
+          <a href="mailto:contato@filz.com.br" class="footer__link" aria-label="E-mail">contato@filz.com.br</a>
+          <span class="footer__link">filz.com.br</span>
+        </div>
+      </div>
+      <p class="footer__tagline">Menos excesso. Mais presença.</p>
+    </div>
+  </footer>
 
   <!-- ============================================
        MAIN SCRIPT
        ============================================ -->
   <script src="js/main.js"></script>
-  <script>
-    // Show page after JS renders to avoid FOUC
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => document.body.classList.add('ready'), 80);
-    });
-  </script>
-  <noscript>
-    <div style="max-width:760px;margin:0 auto;padding:40px 20px;font-family:sans-serif;line-height:1.6;">
-      <h1>FILZ — Camisetas Básicas Premium</h1>
-      <p>Camisetas básicas premium em algodão de alta qualidade, com caimento impecável e durabilidade. Básicos
-        essenciais, elegantes e confortáveis.</p>
-      <p>Ative o JavaScript para ver a coleção completa, o guia de medidas e fazer o cadastro na lista de espera.</p>
-      <h2>Contato</h2>
-      <p>WhatsApp: +55 38 9 9195-2212 · E-mail: contato@filz.com.br · Instagram: @usefilz</p>
-    </div>
-  </noscript>
 </body>
-
 </html>
