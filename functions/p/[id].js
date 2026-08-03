@@ -1,5 +1,5 @@
 import { loadConfig } from '../lib/config.js';
-import { escHtml, escAttr, absolute, ICONS, pageHeader, pageFooter } from '../lib/esc.js';
+import { escHtml, escAttr, absolute, assetPath, ICONS, pageHeader, pageFooter } from '../lib/esc.js';
 
 function colorToHex(hex) {
   if (!hex || !hex.startsWith('#')) return '#888888';
@@ -63,7 +63,7 @@ function productBody(config, product, url) {
   const priceClean = (product.price || '').replace(/[^\d,]/g, '').replace(',', '.');
 
   const imageHtml = hasPhoto
-    ? `<img id="p-main-img" src="${escAttr(firstPhoto)}" alt="${escAttr(product.name)}" class="p-main-img" width="896" height="1200" fetchpriority="high" decoding="async">`
+    ? `<img id="p-main-img" src="${escAttr(assetPath(firstPhoto))}" alt="${escAttr(product.name)}" class="p-main-img" width="896" height="1200" fetchpriority="high" decoding="async">`
     : `<div class="p-main-placeholder">
          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
          <span>Foto em breve</span>
@@ -72,8 +72,8 @@ function productBody(config, product, url) {
   const thumbs = gallery.length > 1
     ? `<div class="p-thumbs" role="group" aria-label="Fotos do produto" id="p-thumbs">
          ${gallery.map((img, i) => `
-           <button class="p-thumb ${i === 0 ? 'active' : ''}" data-gidx="${i}" data-src="${escAttr(img)}" aria-label="Foto ${i + 1}" aria-pressed="${i === 0 ? 'true' : 'false'}">
-             <img src="${escAttr(img)}" alt="Foto ${i + 1} de ${product.name}" loading="lazy" decoding="async">
+           <button class="p-thumb ${i === 0 ? 'active' : ''}" data-gidx="${i}" data-src="${escAttr(assetPath(img))}" aria-label="Foto ${i + 1}" aria-pressed="${i === 0 ? 'true' : 'false'}">
+             <img src="${escAttr(assetPath(img))}" alt="Foto ${i + 1} de ${product.name}" loading="lazy" decoding="async">
            </button>
          `).join('')}
        </div>`
@@ -138,7 +138,7 @@ function productBody(config, product, url) {
 
     <script>
     (function () {
-      var colors = ${JSON.stringify(colors.map(c => ({ name: c.name, image: c.image, hex: c.hex })))};
+      var colors = ${JSON.stringify(colors.map(c => ({ name: c.name, image: assetPath(c.image), hex: c.hex })))};
       var sizes = ${JSON.stringify(sizes)};
       var buyBtn = document.getElementById('p-buy');
       var label = document.getElementById('p-color-label');
