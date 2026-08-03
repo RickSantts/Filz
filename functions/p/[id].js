@@ -9,8 +9,14 @@ function colorToHex(hex) {
   return hex;
 }
 
+function productGallery(product) {
+  const gallery = (product.gallery || []).filter(Boolean);
+  if (gallery.length) return gallery;
+  return (product.colors || []).map(c => c.image).filter(Boolean);
+}
+
 function productJsonLd(config, product, url) {
-  const hasImage = (product.colors || []).find(c => c.image);
+  const images = productGallery(product);
   const price = (product.price || '').replace(/[^\d,]/g, '').replace(',', '.');
   const json = {
     '@context': 'https://schema.org',
@@ -40,8 +46,8 @@ function productJsonLd(config, product, url) {
       }
     ]
   };
-  if (hasImage) {
-    json['@graph'][0].image = absolute(config, hasImage.image);
+  if (images.length) {
+    json['@graph'][0].image = images.map(img => absolute(config, img));
   }
   return JSON.stringify(json);
 }
@@ -50,17 +56,28 @@ function productBody(config, product, url) {
   const b = config.brand || {};
   const colors = product.colors || [];
   const sizes = product.sizes || [];
-  const hasPhoto = colors.some(c => c.image);
-  const firstPhoto = colors.find(c => c.image);
+  const gallery = productGallery(product);
+  const hasPhoto = gallery.length > 0;
+  const firstPhoto = gallery[0];
   const whatsapp = String(b.whatsapp || '').replace(/[^\d]/g, '');
   const priceClean = (product.price || '').replace(/[^\d,]/g, '').replace(',', '.');
 
   const imageHtml = hasPhoto
-    ? `<img id="p-main-img" src="${escAttr(firstPhoto.image)}" alt="${escAttr(product.name)} — ${escAttr(firstPhoto.name)}" class="p-main-img" width="896" height="1200" fetchpriority="high" decoding="async">`
+    ? `<img id="p-main-img" src="${escAttr(firstPhoto)}" alt="${escAttr(product.name)}" class="p-main-img" width="896" height="1200" fetchpriority="high" decoding="async">`
     : `<div class="p-main-placeholder">
          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
          <span>Foto em breve</span>
        </div>`;
+
+  const thumbs = gallery.length > 1
+    ? `<div class="p-thumbs" role="group" aria-label="Fotos do produto" id="p-thumbs">
+         ${gallery.map((img, i) => `
+           <button class="p-thumb ${i === 0 ? 'active' : ''}" data-gidx="${i}" data-src="${escAttr(img)}" aria-label="Foto ${i + 1}" aria-pressed="${i === 0 ? 'true' : 'false'}">
+             <img src="${escAttr(img)}" alt="Foto ${i + 1} de ${product.name}" loading="lazy" decoding="async">
+           </button>
+         `).join('')}
+       </div>`
+    : '';
 
   const swatches = colors.map((c, i) => `
     <button class="color-swatch ${i === 0 ? 'active' : ''}" style="background:${escAttr(colorToHex(c.hex))}; ${c.hex === '#F5F3EF' ? 'box-shadow:inset 0 0 0 1px #D9D4CC;' : ''}"
@@ -78,6 +95,7 @@ function productBody(config, product, url) {
           <div class="p-gallery__main">
             ${imageHtml}
           </div>
+          ${thumbs}
         </div>
 
         <div class="p-info">
@@ -127,8 +145,38 @@ function productBody(config, product, url) {
       var swatches = document.getElementById('p-swatches');
       var sizeGroup = document.getElementById('p-sizes');
       var mainImg = document.getElementById('p-main-img');
+      var thumbs = document.getElementById('p-thumbs');
       var colorIdx = 0;
       var selectedSize = null;
+
+      function setPhoto(src) {
+        if (!mainImg || !src) return;
+        mainImg.src = src;
+        mainImg.alt = (buyBtn ? buyBtn.getAttribute('aria-label').replace(' pelo WhatsApp', '') : '') + ' — Foto';
+      }
+
+      function setActiveThumb(src) {
+        if (!thumbs) return;
+        thumbs.querySelectorAll('.p-thumb').forEach(function (t) {
+          var isActive = t.dataset.src === src;
+          t.classList.toggle('active', isActive);
+          t.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+      }
+
+      if (thumbs) {
+        thumbs.addEventListener('click', function (e) {
+          var btn = e.target.closest('.p-thumb');
+          if (!btn) return;
+          var src = btn.dataset.src;
+          setPhoto(src);
+          thumbs.querySelectorAll('.p-thumb').forEach(function (t) {
+            var isActive = t === btn;
+            t.classList.toggle('active', isActive);
+            t.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          });
+        });
+      }
 
       if (swatches) {
         swatches.addEventListener('click', function (e) {
@@ -141,9 +189,9 @@ function productBody(config, product, url) {
             s.setAttribute('aria-checked', i === idx ? 'true' : 'false');
           });
           if (label) label.textContent = colors[idx].name;
-          if (mainImg && colors[idx].image) {
-            mainImg.src = colors[idx].image;
-            mainImg.alt = buyBtn.getAttribute('aria-label').replace(' pelo WhatsApp', '') + ' — ' + colors[idx].name;
+          if (colors[idx].image) {
+            setPhoto(colors[idx].image);
+            setActiveThumb(colors[idx].image);
           }
         });
       }
@@ -191,9 +239,31 @@ export async function onRequestGet(context) {
     const product = products.find(p => p.id === id) || products.find(p => String(p.id).toLowerCase() === String(id).toLowerCase());
 
     if (!product) {
-      return new Response('Página não encontrada', {
+      return new Response(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produto não encontrado | FILZ</title>
+  <meta name="robots" content="noindex, follow">
+  <style>
+    body{margin:0;font-family:'Saira','Arial',sans-serif;background:#F5F3EF;color:#111111;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:24px;}
+    .wrap{max-width:420px}
+    h1{font-size:15px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:#111;margin:0 0 14px;}
+    p{font-size:14px;font-weight:300;color:#5E5A54;line-height:1.7;margin:0 0 28px;}
+    a{display:inline-block;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;color:#F5F3EF;background:#111;padding:14px 28px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Produto não encontrado</h1>
+    <p>O produto que você procura não existe ou foi removido.</p>
+    <a href="/">Voltar para a coleção</a>
+  </div>
+</body>
+</html>`, {
         status: 404,
-        headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+        headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=3600' }
       });
     }
 
@@ -201,8 +271,9 @@ export async function onRequestGet(context) {
     const url = absolute(config, 'p/' + product.id);
     const title = `${product.name} — Camiseta em Algodão | ${(config.brand && config.brand.name) || 'FILZ'}`;
     const description = [product.description, product.details].filter(Boolean).join('. ');
-    const ogImage = (product.colors || []).find(c => c.image)
-      ? absolute(config, (product.colors).find(c => c.image).image)
+    const images = productGallery(product);
+    const ogImage = images.length
+      ? absolute(config, images[0])
       : absolute(config, 'assets/images/og-cover.jpg');
 
     const html = `<!DOCTYPE html>

@@ -520,6 +520,82 @@
     }
     .btn-add-color:hover { border-color: var(--bronze); color: var(--bronze); }
 
+    /* ── Product gallery (multiple photos) ── */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .gallery-item {
+      position: relative;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .gallery-item.is-cover { border-color: var(--bronze); }
+    .gallery-item.is-cover::after {
+      content: 'CAPA';
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      background: var(--bronze);
+      color: #0E0E0E;
+      padding: 3px 7px;
+      border-radius: 3px;
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 108px;
+      object-fit: cover;
+      display: block;
+      background: var(--bg3);
+    }
+    .gallery-item__actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px;
+    }
+    .gallery-item__nav { display: flex; gap: 4px; }
+    .gallery-item__nav .btn-icon { width: 24px; height: 24px; }
+    .gallery-item__nav .btn-icon svg { width: 11px; height: 11px; }
+    .gallery-drop {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 14px;
+      border: 1.5px dashed var(--border);
+      border-radius: 6px;
+      color: var(--text-dim);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all var(--transition);
+      margin-top: 10px;
+    }
+    .gallery-drop:hover { border-color: var(--bronze); color: var(--text); background: var(--bronze-dim); }
+    .gallery-drop.dragover {
+      border-color: var(--bronze);
+      color: var(--bronze);
+      background: var(--bronze-dim);
+      box-shadow: 0 0 0 2px rgba(176,149,102,0.3) inset;
+    }
+    .gallery-drop svg { flex: none; opacity: 0.7; }
+    .gallery-hint { font-size: 11px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
+
+    .slug-preview {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      word-break: break-all;
+      font-family: monospace;
+    }
+    .slug-preview strong { color: var(--bronze); font-weight: 500; }
+
     /* ── Size tags ── */
     .sizes-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
     .size-tag {
@@ -1195,6 +1271,7 @@
 </div>
 
 <input type="file" id="color-file-input" accept="image/*" style="display:none;" onchange="onColorFileSelected(this)">
+<input type="file" id="gallery-file-input" accept="image/*" multiple style="display:none;" onchange="onGalleryFileSelected(this)">
 
 <!-- ══════════════════════════════════════════════════════════
      ADMIN JAVASCRIPT
@@ -1429,10 +1506,23 @@ function uploadColorFile(file, pi, ci) {
 }
 
 /* ── Products ── */
+const slugLocked = {};
+
+function slugify(str) {
+  return String(str == null ? '' : str)
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'produto';
+}
+
 function renderProducts() {
   const container = document.getElementById('product-list');
   container.innerHTML = '';
   config.products.forEach((p, idx) => {
+    const auto = slugify(p.name || '');
+    slugLocked[idx] = !!(p.id && p.id !== auto);
     container.appendChild(buildProductCard(p, idx));
   });
 }
@@ -1471,6 +1561,14 @@ function buildProductCard(p, idx) {
         </div>
       </div>
       <div class="form-group">
+        <label>URL do produto <span class="hint">gerada automaticamente a partir do nome — edite se quiser</span></label>
+        <div class="input-prefix">
+          <span class="input-prefix__label">/p/</span>
+          <input type="text" data-slug-input="true" value="${escH(p.id)}" oninput="updateSlug(${idx},this.value)">
+        </div>
+        <p class="slug-preview" id="slug-preview-${idx}">https://filz.com.br/p/<strong>${escH(p.id)}</strong></p>
+      </div>
+      <div class="form-group">
         <label>Descrição curta <span class="hint">exibida abaixo do nome</span></label>
         <input type="text" value="${escH(p.description)}" oninput="updateProduct(${idx},'description',this.value)">
       </div>
@@ -1489,6 +1587,21 @@ function buildProductCard(p, idx) {
           <span class="toggle-slider"></span>
         </label>
         <span class="toggle-label">Mostrar placeholder "Foto em breve" (ative quando não tiver foto ainda)</span>
+      </div>
+
+      <hr class="divider" style="margin:16px 0;">
+      <div class="section-title" style="margin-bottom:4px;">Fotos do produto</div>
+      <p class="gallery-hint">Adicione várias fotos (frente, costas, detalhes, modelagem). A primeira foto é a capa exibida na coleção e nas redes sociais.</p>
+      <div class="gallery-grid" id="gallery-${idx}">
+        ${(p.gallery || []).map((g, gi) => galleryItem(idx, gi, g)).join('')}
+      </div>
+      <div class="gallery-drop"
+        ondragover="onGalleryDragOver(event)"
+        ondragleave="onGalleryDragLeave(event)"
+        ondrop="dropGalleryImages(${idx},event)"
+        onclick="pickGalleryImages(${idx})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>Arraste várias fotos aqui ou clique para selecionar</span>
       </div>
 
       <hr class="divider" style="margin:16px 0;">
@@ -1554,6 +1667,113 @@ function colorToHex(hex) {
   return hex;
 }
 
+/* ── Product gallery (multiple photos) ── */
+function galleryItem(pi, gi, g) {
+  return `
+    <div class="gallery-item ${gi === 0 ? 'is-cover' : ''}" id="gitem-${pi}-${gi}">
+      <img src="${escH(g)}" alt="Foto ${gi + 1}">
+      <div class="gallery-item__actions">
+        <div class="gallery-item__nav">
+          <button class="btn-icon" title="Mover para a esquerda" onclick="moveGalleryImage(${pi},${gi},-1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="btn-icon" title="Mover para a direita" onclick="moveGalleryImage(${pi},${gi},1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <button class="btn-icon danger" title="Remover foto" onclick="removeGalleryImage(${pi},${gi})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderGallery(pi) {
+  const container = document.getElementById(`gallery-${pi}`);
+  if (container) {
+    container.innerHTML = (config.products[pi].gallery || []).map((g, gi) => galleryItem(pi, gi, g)).join('');
+  }
+}
+
+function removeGalleryImage(pi, gi) {
+  config.products[pi].gallery.splice(gi, 1);
+  renderGallery(pi);
+}
+
+function moveGalleryImage(pi, gi, dir) {
+  const g = config.products[pi].gallery;
+  const to = gi + dir;
+  if (to < 0 || to >= g.length) return;
+  const tmp = g[gi];
+  g[gi] = g[to];
+  g[to] = tmp;
+  renderGallery(pi);
+}
+
+async function uploadGalleryFile(file) {
+  const formData = new FormData();
+  formData.append('file', file, file.name);
+  const res = await fetch('/api/upload', { method: 'POST', body: formData });
+  const data = await res.json();
+  if (data.ok) {
+    showToast('Imagem enviada: ' + file.name, 'success');
+    return data.path;
+  }
+  showToast('Erro: ' + data.message, 'error');
+  return null;
+}
+
+async function uploadGalleryFiles(files, pi) {
+  if (!Array.isArray(config.products[pi].gallery)) config.products[pi].gallery = [];
+  const gallery = config.products[pi].gallery;
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) {
+      showToast('Envie apenas imagens.', 'error');
+      continue;
+    }
+    try {
+      const path = await uploadGalleryFile(file);
+      if (path) gallery.push(path);
+    } catch (e) {
+      showToast('Servidor sem suporte a upload. Copie os arquivos manualmente para assets/images/', 'error');
+    }
+  }
+  renderGallery(pi);
+}
+
+let pendingGalleryProduct = null;
+function pickGalleryImages(pi) {
+  pendingGalleryProduct = pi;
+  const input = document.getElementById('gallery-file-input');
+  input.value = '';
+  input.click();
+}
+function onGalleryFileSelected(input) {
+  const files = input.files;
+  const pi = pendingGalleryProduct;
+  pendingGalleryProduct = null;
+  input.value = '';
+  if (!files || !files.length || pi == null) return;
+  uploadGalleryFiles(Array.from(files), pi);
+}
+function onGalleryDragOver(ev) {
+  ev.preventDefault();
+  ev.currentTarget.classList.add('dragover');
+}
+function onGalleryDragLeave(ev) {
+  ev.currentTarget.classList.remove('dragover');
+}
+function dropGalleryImages(pi, ev) {
+  ev.preventDefault();
+  ev.stopPropagation();
+  const el = ev.currentTarget;
+  el.classList.remove('dragover');
+  const files = ev.dataTransfer && ev.dataTransfer.files;
+  if (!files || !files.length) return;
+  uploadGalleryFiles(Array.from(files), pi);
+}
+
 function toggleProduct(idx) {
   const body = document.getElementById(`pbody-${idx}`);
   const chev = document.getElementById(`chev-${idx}`);
@@ -1561,8 +1781,28 @@ function toggleProduct(idx) {
   chev.classList.toggle('open');
 }
 
+function updateSlugFieldDisplay(idx) {
+  const card = document.getElementById(`pcard-${idx}`);
+  if (!card) return;
+  const input = card.querySelector('[data-slug-input]');
+  const preview = card.querySelector('.slug-preview');
+  const id = config.products[idx].id || '';
+  if (input && input.value !== id) input.value = id;
+  if (preview) preview.innerHTML = `https://filz.com.br/p/<strong>${escH(id)}</strong>`;
+}
+
+function updateSlug(idx, val) {
+  slugLocked[idx] = true;
+  config.products[idx].id = slugify(val);
+  updateSlugFieldDisplay(idx);
+}
+
 function updateProduct(idx, field, val) {
   config.products[idx][field] = val;
+  if (field === 'name' && !slugLocked[idx]) {
+    config.products[idx].id = slugify(val);
+    updateSlugFieldDisplay(idx);
+  }
   // Update header display
   const card = document.getElementById(`pcard-${idx}`);
   if (card) {
@@ -1585,10 +1825,9 @@ async function removeProduct(idx) {
 }
 
 function addProduct() {
-  const newId = 'produto-' + Date.now();
   config.products.push({
-    id: newId, name: 'Novo Produto', price: 'R$ 00,00',
-    description: '', details: '', placeholder: true,
+    id: 'novo-produto', name: 'Novo Produto', price: 'R$ 00,00',
+    description: '', details: '', placeholder: true, gallery: [],
     colors: [{ name: 'Branco', hex: '#F5F3EF', image: '' }],
     sizes: ['P', 'M', 'G'],
     whatsappMessage: 'Olá! Gostaria de comprar o Novo Produto.'

@@ -34,6 +34,7 @@
       "description": "100% algodão · 180g · Modelagem Casual",
       "details": "Tecido suave ao toque, resistente à lavagem e com caimento perfeito para o dia a dia.",
       "placeholder": true,
+      "gallery": [],
       "colors": [
         {
           "name": "Branco",
@@ -67,6 +68,7 @@
       "description": "100% algodão · 200g · Modelagem Oversized",
       "details": "Corte largo e relaxado para um look moderno e confortável.",
       "placeholder": true,
+      "gallery": [],
       "colors": [
         {
           "name": "Preto",
@@ -94,6 +96,7 @@
       "description": "100% algodão · 180g · Bolso funcional",
       "details": "Detalhe de bolso no peito, elegante e funcional para o cotidiano.",
       "placeholder": true,
+      "gallery": [],
       "colors": [
         {
           "name": "Branco",

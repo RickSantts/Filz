@@ -93,7 +93,7 @@ function injectStructuredData(site, absolute) {
   const products = (config.products || []).map(p => {
     const colors = (p.colors || []).map(c => c.name).filter(Boolean).join(', ');
     const sizes = (p.sizes || []);
-    const hasImage = (p.colors || []).some(c => c.image);
+    const hasImage = (p.gallery || []).filter(Boolean).length > 0 || (p.colors || []).some(c => c.image);
     const item = {
       '@type': 'Product',
       name: p.name,
@@ -111,7 +111,8 @@ function injectStructuredData(site, absolute) {
     if (colors) item.additionalProperty = { '@type': 'PropertyValue', name: 'Cor', value: colors };
     if (sizes.length) item.size = sizes;
     if (hasImage) {
-      const imgPath = p.colors.find(c => c.image).image;
+      const gallery = (p.gallery || []).filter(Boolean);
+      const imgPath = gallery[0] || p.colors.find(c => c.image).image;
       item.image = absolute(imgPath);
     }
     return item;
@@ -236,7 +237,9 @@ function renderProducts() {
 function renderProductCard(p) {
   const state = productState[p.id];
   const activeColor = p.colors[state.colorIndex];
-  const isPlaceholder = p.placeholder || !activeColor.image;
+  const gallery = (p.gallery || []).filter(Boolean);
+  const cardImage = gallery[0] || activeColor.image;
+  const isPlaceholder = p.placeholder || !cardImage;
 
   const imageHtml = isPlaceholder
     ? `<a class="product-card__img-wrap is-placeholder" id="img-wrap-${p.id}" href="/p/${p.id}" aria-label="${escHtml(p.name)} — ver detalhes">
@@ -251,7 +254,7 @@ function renderProductCard(p) {
        </a>`
     : `<a class="product-card__img-wrap" id="img-wrap-${p.id}" href="/p/${p.id}" aria-label="${escHtml(p.name)} — ver detalhes">
          <img
-           src="${activeColor.image}"
+           src="${cardImage}"
            alt="${escHtml(p.name)} — ${escHtml(activeColor.name)}"
            class="product-card__img"
            id="img-${p.id}"
